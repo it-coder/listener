@@ -1,0 +1,31 @@
+body {
+      padding: 0px;
+      margin: 0px;
+}
+
+.wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+}
+
+.main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+}
+
+.main .sidebar {
+      flex: 0 0 200px;
+      background-color: aqua;
+}
+.main .content {
+      flex: 1;
+      background-color: bisque;
+}
+
+.footer {
+      height: 60px;
+      position: relative;
+      background-color: gray;
+}
