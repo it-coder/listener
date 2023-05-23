@@ -7,18 +7,59 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-fn main() {
-    // tauri::Builder::default()
-    //     .invoke_handler(tauri::generate_handler![greet])
-    //     .run(tauri::generate_context!())
-    //     .expect("error while running tauri application");
+#[tauri::command]
+fn play_list_api(config : NeteaseConfig) -> Vec<SongList> {
+    return netease_playlist(config);
+}
+use reqwest::{cookie::Jar, header, header::HeaderMap};
+#[tauri::command]
+fn ne_play_list_api(params: String, encSecKey: String, _ntes_nuid: String, _ntes_nnid: String) -> String {
+    println!("params is {} ;{}; {}; {}",params, encSecKey, _ntes_nuid, _ntes_nnid);
+    //static COOKIE_STR : String = format!("_ntes_nuid={};_ntes_nnid={}", _ntes_nuid, _ntes_nnid);
+    
+    let mut request_headers = HeaderMap::new();
+    request_headers.insert(
+        header::COOKIE, 
+        header::HeaderValue::from_static("_ntes_nuid=b98af9ad4599162858551fa291d79e76;_ntes_nnid=b98af9ad4599162858551fa291d79e76,1683727178752")
+    );
+    
+    let client = reqwest::blocking::ClientBuilder::new()
+        .default_headers(request_headers).cookie_store(true).build().unwrap();
 
-    netease_playlist();
+    let uri: String = "https://music.163.com/weapi/v3/playlist/detail".to_string();
+    let mut form = HashMap::new();
+    form.insert("params", params);
+    form.insert("encSecKey", encSecKey);
+    let resp = client.post(uri).form(&form).send().unwrap();
+    println!("resp is {}", resp.text().unwrap());
+    return "success".to_string();
 }
 
+
+fn main() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![play_list_api, ne_play_list_api])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+
+    // let config = NeteaseConfig{
+    //     order: None,
+    //     offset: None,
+    //     limit: None,
+    //     cat: None,
+    // };
+    // netease_playlist(config);
+}
+
+use std::collections::HashMap;
+
 use scraper::{Html, Selector};
-fn netease_playlist() -> Vec<SongList> {
-    let uri = "https://music.163.com/discover/playlist/".to_string();
+use serde::{Deserialize, Serialize};
+fn netease_playlist(config : NeteaseConfig) -> Vec<SongList> {
+    let mut uri = "https://music.163.com/discover/playlist/?order=".to_string();
+    uri.push_str(config.order.unwrap_or_else(|| "hot".to_string()).as_str());
+
+
     let resp = reqwest::blocking::get(uri).unwrap_or_else(| err | {
         panic!("show_playlist error is {}", err);
     });
@@ -62,7 +103,16 @@ fn netease_playlist() -> Vec<SongList> {
     
 }
 
-#[derive(Debug)]
+
+#[derive(Deserialize, Debug)]
+struct NeteaseConfig {
+    order: Option<String>,
+    offset: Option<u8>,
+    limit: Option<u8>,
+    cat: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
 struct SongList {
     cover_img_url: String,
     id: String,

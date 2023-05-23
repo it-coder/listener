@@ -1,10 +1,12 @@
 import React from 'react';
 import './style/common.css'
-import { invoke } from '@tauri-apps/api/tauri';
+import  { Netease } from './provider/netease'
 
 function App() {
+  
+
   function cl() {
-    invoke('greet', {name:"world"}).then((resp) => console.log(resp))
+    Netease.ne_playlist_api("neplaylist_2075587022");
   }
   return (
     <div className="wrapper">
