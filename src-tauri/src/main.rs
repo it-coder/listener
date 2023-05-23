@@ -13,11 +13,11 @@ fn main() {
     //     .run(tauri::generate_context!())
     //     .expect("error while running tauri application");
 
-    netease_test();
+    netease_playlist();
 }
 
 use scraper::{Html, Selector};
-fn netease_test() {
+fn netease_playlist() -> Vec<SongList> {
     let uri = "https://music.163.com/discover/playlist/".to_string();
     let resp = reqwest::blocking::get(uri).unwrap_or_else(| err | {
         panic!("show_playlist error is {}", err);
@@ -32,7 +32,7 @@ fn netease_test() {
 
     let detail_selector = Selector::parse("div.u-cover a.msk").unwrap();
 
-
+    let mut play_list: Vec<_> = Vec::new();
     for li_element in fragment.select(&li_selector) {
         let image_element = li_element.select(&image_selector);
         let image = image_element.last().unwrap();
@@ -55,7 +55,9 @@ fn netease_test() {
         
         let song = SongList::new(cover_img_url, id_u8, source_url, title);
         println!("song is {:#?}", song);
+        play_list.push(song);
     }
+    return play_list;
 
     
 }
