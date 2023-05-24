@@ -51,7 +51,7 @@ export class Netease {
             const enc_sec_key = this._rsa_encrypt(sec_key, pubKey, modulus);
             const data = {
                   params: enc_text,
-                  encSecKey: enc_sec_key,
+                  enc_sec_key: enc_sec_key,
             };
             
             return data;
@@ -80,8 +80,8 @@ export class Netease {
             const expire =
             (new Date().getTime() + 1e3 * 60 * 60 * 24 * 365 * 100) / 1000;
             return {
-                  "ntesNuid": nuidValue,
-                  "ntesNnid": nnidValue
+                  "_ntes_nuid": nuidValue,
+                  "_ntes_nnid": nnidValue
             };
       }
 
@@ -101,7 +101,7 @@ export class Netease {
       }
       // song list api
       public static play_list_api() : Array<object> {
-            invoke('play_list_api', {config : {order:"hot"}})
+            invoke('play_list_api', {params : {order:"hot"}})
             .then((resp) => {
                   console.log(resp)
                   return resp;
@@ -116,7 +116,7 @@ export class Netease {
             const cookie = this.cookei_build();
             console.log(cookie);
 
-            invoke('ne_play_list_api', {...encrypt_params, ...cookie})
+            invoke('ne_play_list_api', { params : {list_id, ...encrypt_params, ...cookie}})
                   .then((resp) => {
                         console.log(resp)
                         return resp;
