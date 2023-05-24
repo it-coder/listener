@@ -12,15 +12,17 @@ fn play_list_api(config : NeteaseConfig) -> Vec<SongList> {
     return netease_playlist(config);
 }
 use reqwest::{cookie::Jar, header, header::HeaderMap};
+use serde_json::{Value};
 #[tauri::command]
-fn ne_play_list_api(params: String, encSecKey: String, _ntes_nuid: String, _ntes_nnid: String) -> String {
-    println!("params is {} ;{}; {}; {}",params, encSecKey, _ntes_nuid, _ntes_nnid);
-    //static COOKIE_STR : String = format!("_ntes_nuid={};_ntes_nnid={}", _ntes_nuid, _ntes_nnid);
+fn ne_play_list_api(params: String, enc_sec_key: String, _ntes_nuid: String, _ntes_nnid: String) -> String {
+    println!("params is {} ;{}; {}; {}",params, enc_sec_key, _ntes_nuid, _ntes_nnid);
+    let str_for = format!("_ntes_nuid={};_ntes_nnid={}", _ntes_nuid, _ntes_nnid);
+    let cookie_str = str_for.as_str();
     
     let mut request_headers = HeaderMap::new();
     request_headers.insert(
         header::COOKIE, 
-        header::HeaderValue::from_static("_ntes_nuid=b98af9ad4599162858551fa291d79e76;_ntes_nnid=b98af9ad4599162858551fa291d79e76,1683727178752")
+        header::HeaderValue::from_str(cookie_str).unwrap()
     );
     
     let client = reqwest::blocking::ClientBuilder::new()
@@ -29,18 +31,31 @@ fn ne_play_list_api(params: String, encSecKey: String, _ntes_nuid: String, _ntes
     let uri: String = "https://music.163.com/weapi/v3/playlist/detail".to_string();
     let mut form = HashMap::new();
     form.insert("params", params);
-    form.insert("encSecKey", encSecKey);
+    form.insert("encSecKey", enc_sec_key);
     let resp = client.post(uri).form(&form).send().unwrap();
-    println!("resp is {}", resp.text().unwrap());
+    let resp_text = resp.text().unwrap();
+    let neteaseHttpResponse: NeteaseHttpResponse = serde_json::from_str(&resp_text).unwrap();
+
+    let playlistResp = neteaseHttpResponse.playlist.unwrap();
+    let cover_img_url = playlistResp.cover_img_url;
+    let title = playlistResp.name;
+    let source_url = "https://music.163.com/#/playlist?id=".to_string().push_str("c");
+    let track_ids_array = playlistResp.track_ids;
+    let mut track_ids = Vec::new();
+    for track_value in track_ids_array {
+        track_ids.push(track_value.id);
+    }
+
+
     return "success".to_string();
 }
 
 
 fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![play_list_api, ne_play_list_api])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    // tauri::Builder::default()
+    //     .invoke_handler(tauri::generate_handler![play_list_api, ne_play_list_api])
+    //     .run(tauri::generate_context!())
+    //     .expect("error while running tauri application");
 
     // let config = NeteaseConfig{
     //     order: None,
@@ -49,6 +64,14 @@ fn main() {
     //     cat: None,
     // };
     // netease_playlist(config);
+
+    let str = r#"{
+        "code": 200,
+        "adType": 0
+    }"#;
+    let obj: NeteaseHttpResponse = serde_json::from_str(str).unwrap();
+    println!("{:?}", obj);
+
 }
 
 use std::collections::HashMap;
@@ -129,4 +152,24 @@ impl SongList {
             title,
         }
     }
+}
+
+
+#[derive(Debug, Deserialize)]
+struct NeteaseHttpResponse {
+    code: u8,
+    playlist: Option<PlaylistResponse>,
+}
+
+#[derive(Debug, Deserialize)]
+struct PlaylistResponse {
+    id: String,
+    cover_img_url: String,
+    name: String,
+    track_ids: Vec<TrackIdResponse>
+}
+
+#[derive(Debug, Deserialize)]
+struct TrackIdResponse {
+    id: String,
 }
