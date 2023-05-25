@@ -18,6 +18,11 @@ fn ne_play_list_api(params : NeteaseParam) -> SongListDetail {
     return netease_ne_playlist_detail(params).unwrap();
 }
 
+#[tauri::command]
+fn ne_song_detail_api() {
+    
+}
+
 
 fn main() {
     tauri::Builder::default()

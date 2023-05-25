@@ -99,9 +99,12 @@ export class Netease {
                     return {};
             }
       }
-      // song list api
+      /**
+       * 歌单list
+       * @returns 
+       */
       public static play_list_api() : Array<object> {
-            invoke('play_list_api', {params : {order:"hot"}})
+            invoke(TauriApi.PLAY_LIST_API, {params : {order:"hot"}})
             .then((resp) => {
                   console.log(resp)
                   return resp;
@@ -111,18 +114,76 @@ export class Netease {
       // get playlist api of song_list
       public static ne_playlist_api(list_id: string) : object {
             const encrypt_params = this.get_encrypt_params(list_id);
-            console.log(encrypt_params);
-
             const cookie = this.cookei_build();
-            console.log(cookie);
 
-            invoke('ne_play_list_api', { params : {list_id, ...encrypt_params, ...cookie}})
+            invoke<SongListDetailObj>(TauriApi.NE_PLAY_LIST_API, 
+                  { params : {list_id, ...encrypt_params, ...cookie} })
                   .then((resp) => {
                         console.log(resp)
+                        this.ng_parse_playlist_tracks(resp.track_ids, cookie);
                         return resp;
                   });
             return {};
       }
+      /**
+       * 
+       * @param playlist_tracks 
+       * @param encrypt_params 
+       * @param cookie 
+       */
+      static ng_parse_playlist_tracks(playlist_tracks: Array<TrackIdObj>, cookie: object) {
+            const target_url = 'https://music.163.com/weapi/v3/song/detail';
+            const track_ids = playlist_tracks.map((i) => i.id);
+            const d = {
+              c: `[${track_ids.map((id) => `{"id":${id}}`).join(',')}]`,
+              ids: `[${track_ids.join(',')}]`,
+            };
+            const data = this.weapi(d);
+            invoke(TauriApi.NE_SONG_DETAIL_API, { params : {...data, ...cookie}} )
+                  .then((resp) => {
+
+                  });
+            // axios.post(target_url, new URLSearchParams(data)).then((response) => {
+            //   const tracks = response.data.songs.map((track_json) => ({
+            //     id: `netrack_${track_json.id}`,
+            //     title: track_json.name,
+            //     artist: track_json.ar[0].name,
+            //     artist_id: `neartist_${track_json.ar[0].id}`,
+            //     album: track_json.al.name,
+            //     album_id: `nealbum_${track_json.al.id}`,
+            //     source: 'netease',
+            //     source_url: `https://music.163.com/#/song?id=${track_json.id}`,
+            //     img_url: track_json.al.picUrl,
+            //     // url: `netrack_${track_json.id}`,
+            //   }));
+        
+            //   return callback(null, tracks);
+            // });
+      }
 
 }
 
+// track id
+interface TrackIdObj {
+      id: number     
+}
+// song list detail
+interface SongListDetailObj {
+      id: number,
+      cover_img_url: string,
+      title: string,
+      source_url: string,
+      track_ids: Array<TrackIdObj>,
+}
+
+// tauri provider api
+enum TauriApi {
+      // 歌单api
+      PLAY_LIST_API = "play_list_api",
+      // 歌单详情api
+      NE_PLAY_LIST_API = "ne_play_list_api",
+      // 歌曲列表api
+      NE_SONG_DETAIL_API = "ne_song_detail_api",
+
+
+}

@@ -104,6 +104,50 @@ pub fn netease_ne_playlist_detail(params : NeteaseParam) -> Result<SongListDetai
     return Ok(detail);
 }
 
+pub fn netease_ne_song_detail(params : NeteaseParam) -> Result<Vec<SongTrack>, Box<dyn Error>> {
+    // 构建cookie
+    let str_for = format!("_ntes_nuid={};_ntes_nnid={}", params._ntes_nuid.unwrap(), params._ntes_nnid.unwrap());
+    let cookie_str = str_for.as_str();
+    let mut request_headers = HeaderMap::new();
+    request_headers.insert(
+        header::COOKIE, 
+        header::HeaderValue::from_str(cookie_str)?
+    );
+    
+    let client = reqwest::blocking::ClientBuilder::new()
+        .default_headers(request_headers).cookie_store(true).build().unwrap();
+
+    // 获取歌单详情
+    let uri: String = "https://music.163.com/weapi/v3/song/detail".to_string();
+    let mut form = HashMap::new();
+    form.insert("params", params.params.unwrap());
+    form.insert("encSecKey", params.enc_sec_key.unwrap());
+    let resp = client.post(uri).form(&form).send().unwrap();
+    let resp_text = resp.text().unwrap();
+    println!("resp is {}", resp_text);
+    let resp: NeteaseHttpResponse = serde_json::from_str(&resp_text).unwrap();
+    
+    let mut songs_vo = Vec::new();
+    for song in resp.songs.unwrap() {
+        let mut source_url = String::from("https://music.163.com/#/song?id=");
+        source_url.push_str(&song.id);
+        let song_vo = SongTrack {
+            id: format!("netrack_{}", song.id),
+            title: song.name,
+            artist: song.ar[0].name,
+            artist_id: format!("neartist_{}", song.ar[0].id),
+            album: song.al.name,
+            album_id: format!("nealbum_{}", song.al.id),
+            source: "netease".to_string(),
+            source_url,
+            img_url: song.al.pic_url,
+        };
+        songs_vo.push(song_vo);
+    }
+    Ok(songs_vo)
+
+}
+
 
 #[derive(Deserialize, Debug)]
 pub struct NeteaseParam {
@@ -141,6 +185,20 @@ impl SongList {
     }
 }
 
+/// 歌曲播放信息
+#[derive(Debug, Serialize)]
+pub struct SongTrack {
+    id: String,
+    title: String,
+    artist: String,
+    artist_id: String,
+    album: String,
+    album_id: String,
+    source: String,
+    source_url: String,
+    img_url: String,
+}
+
 /// 歌单详情moedel
 #[derive(Debug, Serialize)]
 pub struct SongListDetail {
@@ -156,6 +214,7 @@ pub struct SongListDetail {
 struct NeteaseHttpResponse {
     code: u8,
     playlist: Option<PlaylistResponse>,
+    songs: Option<Vec<SongDetailResponse>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -175,6 +234,34 @@ struct TrackIdResponse {
     id: String,
 }
 
+/// 歌曲信息
+#[derive(Debug, Deserialize)]
+struct SongDetailResponse {
+    #[serde(deserialize_with = "deserialize_number_to_string")] 
+    id: String,
+    name: String,
+    al: SongAlResponse,
+    ar: Vec<SongArResponse>,
+}
+/// 专辑信息
+#[derive(Debug, Deserialize)]
+struct SongAlResponse {
+    #[serde(deserialize_with = "deserialize_number_to_string")] 
+    id: String,
+    name: String,
+    #[serde(alias = "picUrl")]
+    pic_url: String,
+}
+/// 歌手信息
+#[derive(Debug, Deserialize)]
+struct SongArResponse {
+    #[serde(deserialize_with = "deserialize_number_to_string")] 
+    id: String,
+    name: String,
+}
+
+
+/// 反序列化时numble -> string
 fn deserialize_number_to_string<'de, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: Deserializer<'de>,
