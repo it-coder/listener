@@ -79,7 +79,6 @@ pub fn netease_ne_playlist_detail(params : NeteaseParam) -> Result<SongListDetai
     form.insert("encSecKey", params.enc_sec_key.unwrap());
     let resp = client.post(uri).form(&form).send().unwrap();
     let resp_text = resp.text().unwrap();
-    println!("resp is {}", resp_text);
     let netease_http_response: NeteaseHttpResponse = serde_json::from_str(&resp_text).unwrap();
 
     let playlist_resp = netease_http_response.playlist.unwrap();
@@ -134,7 +133,7 @@ pub fn netease_ne_song_detail(params : NeteaseParam) -> Result<Vec<SongTrack>, B
         let song_vo = SongTrack {
             id: format!("netrack_{}", song.id),
             title: song.name,
-            artist: song.ar[0].name,
+            artist: format!("{}", song.ar[0].name),
             artist_id: format!("neartist_{}", song.ar[0].id),
             album: song.al.name,
             album_id: format!("nealbum_{}", song.al.id),

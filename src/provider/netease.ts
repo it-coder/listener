@@ -57,6 +57,24 @@ export class Netease {
             return data;
       }
 
+      // refer to https://github.com/Binaryify/NeteaseCloudMusicApi/blob/master/util/crypto.js
+      private static eapi(url:string, obj: object) :object {
+            const eapiKey = 'e82ckenh8dichen8';
+      
+            const text = typeof obj === 'object' ? JSON.stringify(obj) : obj;
+            const message = `nobody${url}use${text}md5forencrypt`;
+            const digest = forge.md5
+                  .create()
+                  .update(forge.util.encodeUtf8(message))
+                  .digest()
+                  .toHex();
+            const data = `${url}-36cd479b6b5-${text}-36cd479b6b5-${digest}`;
+      
+            return {
+                  params: this._aes_encrypt(data, eapiKey, 'AES-ECB').toHex().toUpperCase(),
+            };
+      }
+
       private static ne_get_playlist(id: string) : object {
             const d = {
                   id: id,
@@ -112,6 +130,11 @@ export class Netease {
             return [];
       }
       // get playlist api of song_list
+      /**
+       * 获取歌单详细信息
+       * @param list_id 
+       * @returns 
+       */
       public static ne_playlist_api(list_id: string) : object {
             const encrypt_params = this.get_encrypt_params(list_id);
             const cookie = this.cookei_build();
@@ -120,49 +143,46 @@ export class Netease {
                   { params : {list_id, ...encrypt_params, ...cookie} })
                   .then((resp) => {
                         console.log(resp)
-                        this.ng_parse_playlist_tracks(resp.track_ids, cookie);
+                        this.ne_parse_playlist_tracks(resp.track_ids, cookie);
                         return resp;
                   });
             return {};
       }
       /**
-       * 
+       * 获取歌单中歌曲详细list
        * @param playlist_tracks 
        * @param encrypt_params 
        * @param cookie 
        */
-      static ng_parse_playlist_tracks(playlist_tracks: Array<TrackIdObj>, cookie: object) {
+      static ne_parse_playlist_tracks(playlist_tracks: Array<TrackIdObj>, cookie: object) {
             const target_url = 'https://music.163.com/weapi/v3/song/detail';
-            const track_ids = playlist_tracks.map((i) => i.id);
+            const track_ids = playlist_tracks;
             const d = {
               c: `[${track_ids.map((id) => `{"id":${id}}`).join(',')}]`,
               ids: `[${track_ids.join(',')}]`,
             };
+            console.log("sdddddd");
+            console.log(d);
             const data = this.weapi(d);
             invoke(TauriApi.NE_SONG_DETAIL_API, { params : {...data, ...cookie}} )
                   .then((resp) => {
-
+                        console.log("ng_parse_playlist_tracks");
+                        console.log(resp);
                   });
-            // axios.post(target_url, new URLSearchParams(data)).then((response) => {
-            //   const tracks = response.data.songs.map((track_json) => ({
-            //     id: `netrack_${track_json.id}`,
-            //     title: track_json.name,
-            //     artist: track_json.ar[0].name,
-            //     artist_id: `neartist_${track_json.ar[0].id}`,
-            //     album: track_json.al.name,
-            //     album_id: `nealbum_${track_json.al.id}`,
-            //     source: 'netease',
-            //     source_url: `https://music.163.com/#/song?id=${track_json.id}`,
-            //     img_url: track_json.al.picUrl,
-            //     // url: `netrack_${track_json.id}`,
-            //   }));
-        
-            //   return callback(null, tracks);
-            // });
+     
+      }
+
+      /**
+       * 解析歌曲详情 获取播放地址
+       * @param track 歌曲详情
+       */
+      public static ne_bootstrap_track(track: object) {
+
       }
 
 }
 
+// todo
 // track id
 interface TrackIdObj {
       id: number     

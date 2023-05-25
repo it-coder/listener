@@ -7,7 +7,7 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
 }
 
-use listener::provider::netease::{NeteaseParam, SongList, SongListDetail, netease_playlist, netease_ne_playlist_detail};
+use listener::provider::netease::{NeteaseParam, SongList, SongListDetail, SongTrack, netease_playlist, netease_ne_playlist_detail,netease_ne_song_detail};
 #[tauri::command]
 fn play_list_api(params : NeteaseParam) -> Vec<SongList> {
     return netease_playlist(params).unwrap();
@@ -19,14 +19,15 @@ fn ne_play_list_api(params : NeteaseParam) -> SongListDetail {
 }
 
 #[tauri::command]
-fn ne_song_detail_api() {
-    
+fn ne_song_detail_api(params : NeteaseParam) -> Vec<SongTrack>{
+    println!("{:#?}", params);
+    return netease_ne_song_detail(params).unwrap();
 }
 
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![play_list_api, ne_play_list_api])
+        .invoke_handler(tauri::generate_handler![play_list_api, ne_play_list_api,ne_song_detail_api])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 
