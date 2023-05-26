@@ -1562,6 +1562,7 @@ checksum = "ece97ea872ece730aed82664c424eb4c8291e1ff2480247ccf7409044bc6479f"
 name = "listener"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "reqwest",
  "scraper",
  "serde",
