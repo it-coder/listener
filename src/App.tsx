@@ -6,7 +6,9 @@ function App() {
   
 
   function cl() {
-    Netease.ne_playlist_api("neplaylist_2075587022");
+    // Netease.ne_playlist_api("neplaylist_2075587022");
+    // Netease.custom_album_list_api();
+    Netease.test();
   }
   return (
     <div className="wrapper">

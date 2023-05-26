@@ -88,7 +88,7 @@ export class Netease {
             return data;
       }
 
-      private static cookei_build() : object {
+      private static cookie_build() : object {
             const domain = 'https://music.163.com';
             const nuidName = '_ntes_nuid';
             const nnidName = '_ntes_nnid';
@@ -117,27 +117,33 @@ export class Netease {
                     return {};
             }
       }
+
+      public static test() {
+            invoke("test_api", {params : {}})
+                  .then((resp) => {
+                        console.log(resp)
+                  });
+      }
       /**
-       * 歌单list
-       * @returns 
+       * 获取自定义专辑
+       * @returns 自定义专辑列表
        */
-      public static play_list_api() : Array<object> {
-            invoke(TauriApi.PLAY_LIST_API, {params : {order:"hot"}})
-            .then((resp) => {
-                  console.log(resp)
-                  return resp;
-            });
+      public static custom_album_list_api() : Array<CustomAlbum> {
+            invoke<CustomAlbum>(TauriApi.CUSTOM_ALBUM_LIST_API, {params : {order:"hot"}})
+                  .then((resp) => {
+                        console.log(resp)
+                        return resp;
+                  });
             return [];
       }
-      // get playlist api of song_list
       /**
        * 获取歌单详细信息
-       * @param list_id 
+       * @param list_id (example: neCustomAlbum_2075587022)
        * @returns 
        */
       public static ne_playlist_api(list_id: string) : object {
             const encrypt_params = this.get_encrypt_params(list_id);
-            const cookie = this.cookei_build();
+            const cookie = this.cookie_build();
 
             invoke<SongListDetailObj>(TauriApi.NE_PLAY_LIST_API, 
                   { params : {list_id, ...encrypt_params, ...cookie} })
@@ -182,6 +188,16 @@ export class Netease {
 
 }
 
+/**
+ * 自定义专辑
+ */
+interface CustomAlbum {
+      cover_img_url: String,
+      id: String,
+      source_url: String,
+      title: String,
+}
+
 // todo
 // track id
 interface TrackIdObj {
@@ -199,7 +215,7 @@ interface SongListDetailObj {
 // tauri provider api
 enum TauriApi {
       // 歌单api
-      PLAY_LIST_API = "play_list_api",
+      CUSTOM_ALBUM_LIST_API = "custom_album_list_api",
       // 歌单详情api
       NE_PLAY_LIST_API = "ne_play_list_api",
       // 歌曲列表api

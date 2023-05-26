@@ -2,15 +2,20 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+use listener::provider::netease::{NeteaseParam, CustomAlbum, SongListDetail, SongTrack};
+use listener::provider::netease::{test, ne_custom_album_list, netease_ne_playlist_detail,netease_ne_song_detail};
+use std::error::Error;
+/// 异常测试TODO
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+fn test_api(params : NeteaseParam) -> Result<(), String> {
+    test(params);
+    return Ok(());
 }
 
-use listener::provider::netease::{NeteaseParam, SongList, SongListDetail, SongTrack, netease_playlist, netease_ne_playlist_detail,netease_ne_song_detail};
+/// 获取自定义专辑
 #[tauri::command]
-fn play_list_api(params : NeteaseParam) -> Vec<SongList> {
-    return netease_playlist(params).unwrap();
+fn custom_album_list_api(params : NeteaseParam) -> Vec<CustomAlbum> {
+    return ne_custom_album_list(params).unwrap();
 }
 #[tauri::command]
 fn ne_play_list_api(params : NeteaseParam) -> SongListDetail {
@@ -27,7 +32,7 @@ fn ne_song_detail_api(params : NeteaseParam) -> Vec<SongTrack>{
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![play_list_api, ne_play_list_api,ne_song_detail_api])
+        .invoke_handler(tauri::generate_handler![test_api, custom_album_list_api, ne_play_list_api,ne_song_detail_api])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 
