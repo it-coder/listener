@@ -4,9 +4,10 @@
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 use listener::provider::netease::{ NeteaseParam };
-use listener::provider::view::{CustomAlbum, CustomAlbumDetail, Song};
-use listener::provider::netease::{test_ne, ne_custom_album_list, ne_custom_album_detail, ne_custom_album_playlist};
+use listener::provider::view::{CustomAlbum, CustomAlbumDetail, Song, Track};
+use listener::provider::netease::{test_ne, ne_custom_album_list, ne_custom_album_detail, ne_custom_album_playlist, ne_bootsrap_track, ne_lyric};
 use anyhow::{anyhow, Context, Result, bail};
+use serde::Deserialize;
 
 /// 异常测试TODO
 #[tauri::command]
@@ -36,42 +37,47 @@ fn exception_handle<T>(result: Result<T>) -> Result<T, String> {
 /// { "params" : {"order": "hot"}}
 /// ```
 #[tauri::command]
-fn custom_album_list_api(params : NeteaseParam) -> Result<Vec<CustomAlbum>, String> {
-    let rs = ne_custom_album_list(params);
+async fn custom_album_list_api(params : NeteaseParam) -> Result<Vec<CustomAlbum>, String> {
+    let rs = ne_custom_album_list(params).await;
     exception_handle(rs)
 }
 
+
+
 /// 通过id获取自定义专辑详情
 #[tauri::command]
-fn ne_custom_album_detail_api(params : NeteaseParam) -> Result<CustomAlbumDetail, String> {
-    let rs = ne_custom_album_detail(params);
+async fn ne_custom_album_detail_api(params : NeteaseParam) -> Result<CustomAlbumDetail, String> {
+    let rs = ne_custom_album_detail(params).await;
     exception_handle(rs)
 }
 
 /// 自定义专辑playlist
 #[tauri::command]
-fn ne_custom_album_playlist_api(params : NeteaseParam) -> Result<Vec<Song>, String>{
-    let rs = ne_custom_album_playlist(params);
+async fn ne_custom_album_playlist_api(params : NeteaseParam) -> Result<Vec<Song>, String>{
+    let rs = ne_custom_album_playlist(params).await;
+    exception_handle(rs)
+}
+
+/// 解析源播放地址
+#[tauri::command]
+async fn ne_bootsrap_track_api(params : NeteaseParam) -> Result<Track, String>{
+    let rs = ne_bootsrap_track(params).await;
+    exception_handle(rs)
+}
+/// 歌词
+#[tauri::command]
+async fn ne_lyric_api(params : NeteaseParam) -> Result<String, String>{
+    let rs = ne_lyric(params).await;
     exception_handle(rs)
 }
 
 
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![test_api, custom_album_list_api, ne_custom_album_detail_api, ne_custom_album_playlist_api])
+        .invoke_handler(tauri::generate_handler![test_api, custom_album_list_api, ne_custom_album_detail_api
+            , ne_custom_album_playlist_api, ne_bootsrap_track_api, ne_lyric_api])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 
-    // let config = NeteaseConfig{
-    //     order: None,
-    //     offset: None,
-    //     limit: None,
-    //     cat: None,
-    // };
-    // netease_playlist(config);
-    // use scraper::{Html, Selector};
-    // let li_selector = Selector::parse("").map_err(|x| anyhow!(format!("{}", x)));
-    // exception_handle(li_selector);
-
 }
-

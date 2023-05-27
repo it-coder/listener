@@ -1,5 +1,5 @@
-
-use anyhow::{anyhow, Context, Result, bail};
+use std::error::Error;
+use anyhow::{anyhow, Context, Result, bail, Ok};
 
 
 use std::collections::HashMap;
@@ -7,8 +7,10 @@ use std::collections::HashMap;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize, Deserializer};
 use serde_json::Value;
-use reqwest::{header, header::HeaderMap, blocking::Client};
+use reqwest::{header, header::HeaderMap, Client};
 use crate::provider::view::{CustomAlbum, CustomAlbumDetail, Song};
+
+use super::view::Track;
 
 /// test
 pub fn test_ne(params : NeteaseParam) -> Result<String> {
@@ -20,12 +22,12 @@ pub fn test_ne(params : NeteaseParam) -> Result<String> {
 }
 
 /// 获取自定义专辑列表
-pub fn ne_custom_album_list(params : NeteaseParam) -> Result<Vec<CustomAlbum>> {
+pub async fn ne_custom_album_list(params : NeteaseParam) -> Result<Vec<CustomAlbum>> {
     let uri = format!("https://music.163.com/discover/playlist/?order={}", params.order.unwrap_or("hot".to_string()));
     // TODO other param handle
 
-    let resp = reqwest::blocking::get(uri)?;
-    let text = resp.text()?;
+    let resp = reqwest::get(uri).await?;
+    let text = resp.text().await?;
 
     let fragment = Html::parse_fragment(&text);
     let li_selector = Selector::parse("ul.m-cvrlst li").map_err(|x| anyhow!(format!("{}", x)))?;
@@ -44,34 +46,34 @@ pub fn ne_custom_album_list(params : NeteaseParam) -> Result<Vec<CustomAlbum>> {
         let id = detail.value().attr("href").unwrap().to_string().split("=").collect::<Vec<&str>>()[1].to_string();
         
         let source_url: String = format!("https://music.163.com/#/playlist?id={}", id);
-        let id_u8 = format!("neCustomAlbum_{}", id);
-        let custom_album = CustomAlbum::new(cover_img_url, id_u8, source_url, title);
+        let id_u8 = format!("neplaylist_{}", id);
+        let custom_album = CustomAlbum::new(id_u8, cover_img_url, source_url, title);
         custom_album_list.push(custom_album);
     }
     return Ok(custom_album_list);
 }
 
 /// 自定义专辑详情
-pub fn ne_custom_album_detail(params : NeteaseParam) -> Result<CustomAlbumDetail> {
+pub async fn ne_custom_album_detail(params : NeteaseParam) -> Result<CustomAlbumDetail> {
     // 构建cookie client
-    let client = client_build_with_cookie(params)?;
+    let client = client_build_with_cookie(&params)?;
 
     // 获取歌单详情
     let uri: String = String::from("https://music.163.com/weapi/v3/playlist/detail");
     let mut form = HashMap::new();
     form.insert("params", params.params.unwrap());
     form.insert("encSecKey", params.enc_sec_key.unwrap());
-    let resp = client.post(uri).form(&form).send()?;
-    let resp_text = resp.text()?;
+    let resp = client.post(uri).form(&form).send().await?;
+    let resp_text = resp.text().await?;
     let netease_http_response: NeteaseHttpResponse = serde_json::from_str(&resp_text)?;
 
     let playlist_resp = netease_http_response.playlist.unwrap();
     let id = params.list_id.unwrap();
     let cover_img_url = playlist_resp.cover_img_url;
     let title = playlist_resp.name;
-    let mut source_url = "https://music.163.com/#/playlist?id=".to_string();
-    let list_id = id.split("_").collect::<Vec<&str>>()[1].to_string();
-    source_url.push_str(&list_id);
+
+    let source_url = format!("https://music.163.com/#/playlist?id={}", id.split("_").collect::<Vec<&str>>()[1].to_string());
+
     let track_ids_array = playlist_resp.track_ids;
     let mut track_ids = Vec::new();
     for track_value in track_ids_array {
@@ -82,17 +84,17 @@ pub fn ne_custom_album_detail(params : NeteaseParam) -> Result<CustomAlbumDetail
 }
 
 /// netease 自定义专辑playlist
-pub fn ne_custom_album_playlist(params : NeteaseParam) -> Result<Vec<Song>> {
+pub async fn ne_custom_album_playlist(params : NeteaseParam) -> Result<Vec<Song>> {
     // 构建cookie client
-    let client = client_build_with_cookie(params)?;
+    let client = client_build_with_cookie(&params)?;
 
     // 获取歌单详情
     let uri: String = String::from("https://music.163.com/weapi/v3/song/detail");
     let mut form = HashMap::new();
     form.insert("params", params.params.unwrap());
     form.insert("encSecKey", params.enc_sec_key.unwrap());
-    let resp = client.post(uri).form(&form).send().unwrap();
-    let resp_text = resp.text().unwrap();
+    let resp = client.post(uri).form(&form).send().await?;
+    let resp_text = resp.text().await?;
     println!("resp is {}", resp_text);
     let resp: NeteaseHttpResponse = serde_json::from_str(&resp_text).unwrap();
     
@@ -117,23 +119,55 @@ pub fn ne_custom_album_playlist(params : NeteaseParam) -> Result<Vec<Song>> {
 
 
 /// 网易云 获取源播放地址
-// pub fn ne_bootsrap_track_api(params : NeteaseParam) -> Result<_> {
-//     // 构建cookie client
-//     let client = client_build_with_cookie(params)?;
+pub async fn ne_bootsrap_track(params : NeteaseParam) -> Result<Track> {
+    let client = reqwest::ClientBuilder::new().build()?;
+    // 构建cookie client
+    // let client = client_build_with_cookie(&params)?;
 
-//     // 获取歌单详情
-//     let uri: String = String::from("https://music.163.com/weapi/v3/song/detail");
-//     let mut form = HashMap::new();
-//     form.insert("params", params.params.unwrap());
-//     form.insert("encSecKey", params.enc_sec_key.unwrap());
-// }
+    // 获取源地址
+    let uri: String = String::from("https://interface3.music.163.com/eapi/song/enhance/player/url");
+    let mut form = HashMap::new();
+    form.insert("params", params.params.unwrap());
+    let resp = client.post(uri).form(&form).send().await?;
+
+    let resp_text = resp.text().await?;
+    println!("resp is {}", resp_text);
+    let resp: NeteaseHttpResponse = serde_json::from_str(&resp_text)?;
+
+    let mut tracks = resp.data.unwrap();
+    let track = tracks.pop().unwrap();
+
+    let track = Track::new(track.url.unwrap(), track.br.unwrap());
+    Ok(track)
+
+}
+
+pub async fn ne_lyric(params : NeteaseParam) -> Result<String> {
+    let client = reqwest::ClientBuilder::new().build()?;
+
+    let uri: String = String::from("https://music.163.com/weapi/song/lyric?csrf_token=");
+    let mut form = HashMap::new();
+    form.insert("params", params.params.unwrap());
+    form.insert("encSecKey", params.enc_sec_key.unwrap());
+
+    let resp = client.post(uri).form(&form).send().await?;
+
+    let resp_text = resp.text().await?;
+    println!("{}", resp_text);
+    let josn_str = serde_json::json!(resp_text.as_str());
+    // let lyric = json["lrc"]["lyric"].as_str();
+    println!("ss is ");
+    println!("ss is : {:?}", josn_str["code"]);
+   
+    Ok(String::from(""))
+}
 
 
-fn client_build_with_cookie(params : NeteaseParam) -> Result<Client> {
+fn client_build_with_cookie(params : &NeteaseParam) -> Result<Client> {
     // 构建cookie
     let str_for = format!("_ntes_nuid={};_ntes_nnid={}"
-        , params._ntes_nuid.ok_or(anyhow!("_ntes_nuid can not is None"))?
-        , params._ntes_nnid.ok_or(anyhow!("_ntes_nnid can not is None"))?);
+        , params._ntes_nuid.clone().ok_or(anyhow!("_ntes_nuid can not is None"))?
+        , params._ntes_nnid.clone().ok_or(anyhow!("_ntes_nnid can not is None"))?);
     let cookie_str = str_for.as_str();
     let mut request_headers = HeaderMap::new();
     request_headers.insert(
@@ -141,7 +175,7 @@ fn client_build_with_cookie(params : NeteaseParam) -> Result<Client> {
         header::HeaderValue::from_str(cookie_str)?
     );
     
-    let client = reqwest::blocking::ClientBuilder::new()
+    let client = reqwest::ClientBuilder::new()
         .default_headers(request_headers).cookie_store(true).build()?;
 
     return Ok(client);
@@ -170,30 +204,30 @@ struct NeteaseHttpResponse {
     code: u8,
     playlist: Option<PlaylistResponse>,
     songs: Option<Vec<SongDetailResponse>>,
+    data: Option<Vec<TrackResponse>>,
 }
 
 #[derive(Debug, Deserialize)]
 struct PlaylistResponse {
-    #[serde(deserialize_with = "deserialize_number_to_string")] 
-    id: String,
+    id: usize,
     #[serde(alias = "coverImgUrl")]
     cover_img_url: String,
     name: String,
     #[serde(alias = "trackIds")]
-    track_ids: Vec<TrackIdResponse>
+    track_ids: Vec<TrackResponse>
 }
 
 #[derive(Debug, Deserialize)]
-struct TrackIdResponse {
-    #[serde(deserialize_with = "deserialize_number_to_string")] 
-    id: String,
+struct TrackResponse {
+    id: usize,
+    url: Option<String>,
+    br: Option<usize>,
 }
 
 /// 歌曲信息
 #[derive(Debug, Deserialize)]
 struct SongDetailResponse {
-    #[serde(deserialize_with = "deserialize_number_to_string")] 
-    id: String,
+    id: usize,
     name: String,
     al: SongAlResponse,
     ar: Vec<SongArResponse>,
@@ -201,8 +235,7 @@ struct SongDetailResponse {
 /// 专辑信息
 #[derive(Debug, Deserialize)]
 struct SongAlResponse {
-    #[serde(deserialize_with = "deserialize_number_to_string")] 
-    id: String,
+    id: usize,
     name: String,
     #[serde(alias = "picUrl")]
     pic_url: String,
@@ -210,24 +243,9 @@ struct SongAlResponse {
 /// 歌手信息
 #[derive(Debug, Deserialize)]
 struct SongArResponse {
-    #[serde(deserialize_with = "deserialize_number_to_string")] 
-    id: String,
+    id: usize,
     name: String,
 }
 
-
-/// 反序列化时numble -> string
-fn deserialize_number_to_string<'de, D>(deserializer: D) -> Result<String, D::Error>
-where
-    D: Deserializer<'de>,
-{           
-    let v: Value = Deserialize::deserialize(deserializer)?;
-    if v.is_number() {
-        let r= v.to_string();
-        Ok(r)
-    } else {
-        Ok("".to_string())
-    }
-}
 
 

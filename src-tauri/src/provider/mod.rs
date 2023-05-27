@@ -33,11 +33,11 @@ pub mod view {
         cover_img_url: String,
         title: String,
         source_url: String,
-        track_ids: Vec<String>,
+        track_ids: Vec<usize>,
     }
 
     impl CustomAlbumDetail {
-        pub fn new(id: String, cover_img_url: String, source_url: String, title: String, track_ids: Vec<String>) -> Self {
+        pub fn new(id: String, cover_img_url: String, source_url: String, title: String, track_ids: Vec<usize>) -> Self {
             CustomAlbumDetail {
                 id,
                 cover_img_url,
@@ -77,5 +77,20 @@ pub mod view {
             }
         }
     }
+
+    /// 源地址
+    #[derive(Debug, Serialize)]
+    pub struct Track {
+        url: String,
+        br: usize,
+    }
+
+    impl Track {
+        pub fn new(url: String, br: usize) -> Self {
+            Track { url, br }
+        }
+    }
+
+
 
 }

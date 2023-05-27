@@ -118,45 +118,48 @@ export class Netease {
             }
       }
 
-      public static test() {
-            invoke<TestVO>("test_api", {params : {"order":"hot"}})
-                  .then((resp) => {
-                        console.log(resp.other)
-                        console.log(resp.title)
-                  }).catch((msg) => {
-                        console.log(msg)
-                  });
+      public static async test_netease() {
+            let albums = await this.custom_album_list_api();
+            console.log("test_netease[albums]:", albums)
+
+            let customAlbumDetail = await this.ne_album_list_detail_api(albums[0].id);
+            console.log("test_netease[customAlbumDetail]:", customAlbumDetail)
+
+            this.ne_bootstrap_track(customAlbumDetail.songs[0]);
+            console.log("test_netease[track]:")
+
+            this.ne_lyric({id: "423406145"})
+
+
       }
       /**
        * 获取自定义专辑
        * @returns 自定义专辑列表
        */
-      public static custom_album_list_api() : Array<CustomAlbum> {
-            invoke<Array<CustomAlbum>>(TauriApi.CUSTOM_ALBUM_LIST_API, {params : {order:"hot"}})
-                  .then((resp) => {
-                        console.log(resp)
-                        return resp;
-                  });
-            return [];
+      public static async custom_album_list_api() : Promise<CustomAlbum[]> {
+            console.log("custom_album_list_api")
+            let rs = await invoke<Array<CustomAlbum>>(TauriApi.CUSTOM_ALBUM_LIST_API, {params : {order:"hot"}});
+            return rs;
       }
       /**
        * 获取歌单详细信息
        * @param list_id 专辑id(example: neCustomAlbum_2075587022)
        * @returns 
        */
-      public static ne_album_list_detail_api(list_id: string) : CustomAlbumDetail {
+      public static async ne_album_list_detail_api(list_id: string) : Promise<CustomAlbumDetail> {
             const encrypt_params = this.get_encrypt_params(list_id);
             const cookie = this.cookie_build();
 
-            invoke<CustomAlbumDetail>(TauriApi.NE_CUSTOM_ALBUM_DETAIL_API, 
-                  { params : {list_id, ...encrypt_params, ...cookie} })
-                  .then((resp) => {
-                        console.log(resp)
-                        let songs = this.ne_parse_playlist_tracks(resp.track_ids, cookie);
-                        resp.songs = songs;
-                        return resp;
-                  });
-                  return new CustomAlbumDetail();
+            console.log("ddd: ", encrypt_params)
+            console.log("ddddd: ", cookie)
+
+
+            let resp = await invoke<CustomAlbumDetail>(TauriApi.NE_CUSTOM_ALBUM_DETAIL_API, 
+                  { params : {list_id, ...encrypt_params, ...cookie} });
+                 
+            let songs = await this.ne_parse_playlist_tracks(resp.track_ids, cookie);
+            resp.songs = songs;
+            return resp;
       }
       /**
        * 获取歌单中playlist
@@ -164,22 +167,15 @@ export class Netease {
        * @param encrypt_params 
        * @param cookie 
        */
-      static ne_parse_playlist_tracks(playlist_tracks: Array<string>, cookie: object): Array<Song> {
+      static async ne_parse_playlist_tracks(playlist_tracks: Array<string>, cookie: object): Promise<Array<Song>> {
             const track_ids = playlist_tracks;
             const d = {
               c: `[${track_ids.map((id) => `{"id":${id}}`).join(',')}]`,
               ids: `[${track_ids.join(',')}]`,
             };
-            console.log("sdddddd");
-            console.log(d);
             const data = this.weapi(d);
-            invoke<Array<Song>>(TauriApi.NE_CUSTOM_ALBUM_PLAYLIST_API, { params : {...data, ...cookie}} )
-                  .then((resp) => {
-                        console.log("ng_parse_playlist_tracks");
-                        console.log(resp);
-                  });
-
-            return [];
+            let resp = await invoke<Array<Song>>(TauriApi.NE_CUSTOM_ALBUM_PLAYLIST_API, { params : {...data, ...cookie}} )
+            return resp;
      
       }
 
@@ -187,8 +183,41 @@ export class Netease {
        * 解析歌曲详情 获取播放地址
        * @param track 歌曲详情
        */
-      public static ne_bootstrap_track(track: object) {
+      public static async ne_bootstrap_track(track: Song) {
+            const sound = {};
+            const target_url = `https://interface3.music.163.com/eapi/song/enhance/player/url`;
+            let song_id = track.id;
+            const eapiUrl = '/api/song/enhance/player/url';
 
+            song_id = song_id.slice('netrack_'.length);
+
+            const d = {
+                  ids: `[${song_id}]`,
+                  br: 999000,
+            };
+            const data = this.eapi(eapiUrl, d);
+
+            let song = await invoke<Song>(TauriApi.NE_BOOTSRAP_TRACK_API, { params : {...data}} )
+            console.log(song)
+
+      }
+
+      public static async ne_lyric(track: Song) {
+            const track_id = track.id;
+            // use chrome extension to modify referer.
+            const target_url = 'https://music.163.com/weapi/song/lyric?csrf_token=';
+            const csrf = '';
+            const d = {
+                  id: track_id,
+                  lv: -1,
+                  tv: -1,
+                  csrf_token: csrf,
+            };
+            const data = this.weapi(d);
+            let res_data:object = await invoke(TauriApi.NE_LYRIC_API, { params : {...data}} ) 
+            console.log(res_data)
+
+           
       }
 
 }
@@ -202,6 +231,9 @@ enum TauriApi {
       NE_CUSTOM_ALBUM_DETAIL_API = "ne_custom_album_detail_api",
       // 歌曲列表api
       NE_CUSTOM_ALBUM_PLAYLIST_API = "ne_custom_album_playlist_api",
-
+      // 源播放地址
+      NE_BOOTSRAP_TRACK_API  = "ne_bootsrap_track_api",
+      // lyric
+      NE_LYRIC_API = "ne_lyric_api",
 
 }

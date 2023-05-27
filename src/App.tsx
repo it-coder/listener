@@ -5,10 +5,11 @@ import  { Netease } from './provider/netease'
 function App() {
   
 
-  function cl() {
+  function test_netease() {
     // Netease.ne_playlist_api("neplaylist_2075587022");
     // Netease.custom_album_list_api();
-    Netease.test();
+    // Netease.ne_bootstrap_track({id:"netrack_5308068"});
+    Netease.test_netease();
   }
   return (
     <div className="wrapper">
@@ -17,7 +18,7 @@ function App() {
         <div className="content"></div>
       </div>
       <div className="footer">
-        <button onClick={cl} >点我</button>
+        <button onClick={test_netease} >点我</button>
       </div>
     </div>
   );
