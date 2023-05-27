@@ -1,5 +1,4 @@
 
-use std::error::Error;
 use anyhow::{anyhow, Context, Result, bail};
 
 
@@ -8,7 +7,7 @@ use std::collections::HashMap;
 use scraper::{Html, Selector};
 use serde::{Deserialize, Serialize, Deserializer};
 use serde_json::Value;
-use reqwest::{header, header::HeaderMap};
+use reqwest::{header, header::HeaderMap, blocking::Client};
 use crate::provider::view::{CustomAlbum, CustomAlbumDetail, Song};
 
 /// test
@@ -54,22 +53,11 @@ pub fn ne_custom_album_list(params : NeteaseParam) -> Result<Vec<CustomAlbum>> {
 
 /// 自定义专辑详情
 pub fn ne_custom_album_detail(params : NeteaseParam) -> Result<CustomAlbumDetail> {
-    // 构建cookie
-    let str_for = format!("_ntes_nuid={};_ntes_nnid={}"
-        , params._ntes_nuid.ok_or(anyhow!("_ntes_nuid can not is None"))?
-        , params._ntes_nnid.ok_or(anyhow!("_ntes_nnid can not is None"))?);
-    let cookie_str = str_for.as_str();
-    let mut request_headers = HeaderMap::new();
-    request_headers.insert(
-        header::COOKIE, 
-        header::HeaderValue::from_str(cookie_str)?
-    );
-    
-    let client = reqwest::blocking::ClientBuilder::new()
-        .default_headers(request_headers).cookie_store(true).build()?;
+    // 构建cookie client
+    let client = client_build_with_cookie(params)?;
 
     // 获取歌单详情
-    let uri: String = "https://music.163.com/weapi/v3/playlist/detail".to_string();
+    let uri: String = String::from("https://music.163.com/weapi/v3/playlist/detail");
     let mut form = HashMap::new();
     form.insert("params", params.params.unwrap());
     form.insert("encSecKey", params.enc_sec_key.unwrap());
@@ -95,20 +83,11 @@ pub fn ne_custom_album_detail(params : NeteaseParam) -> Result<CustomAlbumDetail
 
 /// netease 自定义专辑playlist
 pub fn ne_custom_album_playlist(params : NeteaseParam) -> Result<Vec<Song>> {
-    // 构建cookie
-    let str_for = format!("_ntes_nuid={};_ntes_nnid={}", params._ntes_nuid.unwrap(), params._ntes_nnid.unwrap());
-    let cookie_str = str_for.as_str();
-    let mut request_headers = HeaderMap::new();
-    request_headers.insert(
-        header::COOKIE, 
-        header::HeaderValue::from_str(cookie_str)?
-    );
-    
-    let client = reqwest::blocking::ClientBuilder::new()
-        .default_headers(request_headers).cookie_store(true).build().unwrap();
+    // 构建cookie client
+    let client = client_build_with_cookie(params)?;
 
     // 获取歌单详情
-    let uri: String = "https://music.163.com/weapi/v3/song/detail".to_string();
+    let uri: String = String::from("https://music.163.com/weapi/v3/song/detail");
     let mut form = HashMap::new();
     form.insert("params", params.params.unwrap());
     form.insert("encSecKey", params.enc_sec_key.unwrap());
@@ -134,6 +113,38 @@ pub fn ne_custom_album_playlist(params : NeteaseParam) -> Result<Vec<Song>> {
     }
     Ok(songs_vo)
 
+}
+
+
+/// 网易云 获取源播放地址
+// pub fn ne_bootsrap_track_api(params : NeteaseParam) -> Result<_> {
+//     // 构建cookie client
+//     let client = client_build_with_cookie(params)?;
+
+//     // 获取歌单详情
+//     let uri: String = String::from("https://music.163.com/weapi/v3/song/detail");
+//     let mut form = HashMap::new();
+//     form.insert("params", params.params.unwrap());
+//     form.insert("encSecKey", params.enc_sec_key.unwrap());
+// }
+
+
+fn client_build_with_cookie(params : NeteaseParam) -> Result<Client> {
+    // 构建cookie
+    let str_for = format!("_ntes_nuid={};_ntes_nnid={}"
+        , params._ntes_nuid.ok_or(anyhow!("_ntes_nuid can not is None"))?
+        , params._ntes_nnid.ok_or(anyhow!("_ntes_nnid can not is None"))?);
+    let cookie_str = str_for.as_str();
+    let mut request_headers = HeaderMap::new();
+    request_headers.insert(
+        header::COOKIE, 
+        header::HeaderValue::from_str(cookie_str)?
+    );
+    
+    let client = reqwest::blocking::ClientBuilder::new()
+        .default_headers(request_headers).cookie_store(true).build()?;
+
+    return Ok(client);
 }
 
 

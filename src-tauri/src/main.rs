@@ -10,9 +10,10 @@ use anyhow::{anyhow, Context, Result, bail};
 
 /// 异常测试TODO
 #[tauri::command]
-fn test_api(params : NeteaseParam) -> Result<String, String> {
-    let rs = test_ne(params);
-    exception_handle(rs)
+fn test_api(params : NeteaseParam) -> Result<CustomAlbum, String> {
+    // let rs = test_ne(params);
+    let cs = CustomAlbum::new("id".to_string(), "cover_img_url".to_string(), "source_url".to_string(), "title".to_string());
+    Ok(cs)
     
 }
 
