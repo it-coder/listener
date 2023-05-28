@@ -8,6 +8,7 @@ use listener::provider::view::{CustomAlbum, CustomAlbumDetail, Song, Track};
 use listener::provider::netease::{test_ne, ne_custom_album_list, ne_custom_album_detail, ne_custom_album_playlist, ne_bootsrap_track, ne_lyric};
 use anyhow::{anyhow, Context, Result, bail};
 use serde::Deserialize;
+use serde_json::Value;
 
 /// 异常测试TODO
 #[tauri::command]
@@ -79,5 +80,21 @@ fn main() {
             , ne_custom_album_playlist_api, ne_bootsrap_track_api, ne_lyric_api])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+
+    // let resp_text = r#"
+    //     {
+    //         "data": {
+    //             "name":"lihang"
+    //         }
+    //     }
+    // "#;
+
+    // use serde_json::json;
+    
+    
+    // let josn_str:Value = serde_json::from_str(resp_text).unwrap();
+
+    // println!("{:?}", josn_str["data"]["name"].as_str().unwrap());
+
 
 }

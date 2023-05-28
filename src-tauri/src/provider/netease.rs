@@ -154,12 +154,10 @@ pub async fn ne_lyric(params : NeteaseParam) -> Result<String> {
 
     let resp_text = resp.text().await?;
     println!("{}", resp_text);
-    let josn_str = serde_json::json!(resp_text.as_str());
-    // let lyric = json["lrc"]["lyric"].as_str();
-    println!("ss is ");
-    println!("ss is : {:?}", josn_str["code"]);
+    let josn_str:Value = serde_json::from_str(resp_text.as_str())?;
+    let lyric = josn_str["lrc"]["lyric"].as_str().unwrap();
    
-    Ok(String::from(""))
+    Ok(String::from(lyric))
 }
 
 

@@ -150,10 +150,6 @@ export class Netease {
             const encrypt_params = this.get_encrypt_params(list_id);
             const cookie = this.cookie_build();
 
-            console.log("ddd: ", encrypt_params)
-            console.log("ddddd: ", cookie)
-
-
             let resp = await invoke<CustomAlbumDetail>(TauriApi.NE_CUSTOM_ALBUM_DETAIL_API, 
                   { params : {list_id, ...encrypt_params, ...cookie} });
                  
