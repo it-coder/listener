@@ -17,8 +17,97 @@ body {
 
 .main .sidebar {
       flex: 0 0 200px;
+      display: flex;
+      flex-direction: column;
       background-color: aqua;
 }
+
+/* tools utils */
+.flex-scroll-wrapper {
+      flex: 1;
+      height: 1、、0px;
+      overflow-y: scroll;
+      scrollbar-width: thin;
+      scrollbar-color: var(--scroll-color) var(--content-background-color);
+}
+
+/* main sidebar start */
+.sidebar .menu-control {
+      height: 43px;
+      width: 125px;
+      -webkit-app-region: drag;
+}
+.sidebar .menu-title {
+      height: 28px;
+      line-height: 28px;
+      margin: 0 12px 4px 12px;
+      color: var(--link-default-color);
+      padding-left: 10px;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+}
+    .sidebar .menu-title .title {
+      flex: 1;
+}
+.sidebar .menu-title svg {
+      flex: 0 0 18px;
+}
+    
+.sidebar ul li {
+      cursor: pointer;
+      padding-left: 10px;
+      border-top: solid 2px transparent;
+      border-bottom: solid 2px transparent;
+      margin-bottom: -2px;
+}
+.sidebar ul li .sidebar-block {
+      display: flex;
+      align-items: center;
+      line-height: 28px;
+      padding-left: 12px;
+      margin: 3px 0;
+      color: var(--text-default-color);
+    
+      border-radius: var(--default-border-radius);
+}
+    
+.sidebar svg {
+      width: 18px;
+      height: 18px;
+}
+    
+.sidebar ul li a {
+      margin-left: 10px;
+      width: 125px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+}
+    
+.sidebar ul li:hover .sidebar-block {
+      background: var(--sidebar-hover-background-color);
+      color: var(--sidebar-hover-text-color);
+}
+    
+.sidebar ul li.active .sidebar-block,
+.sidebar ul li.active:hover .sidebar-block {
+      background: var(--sidebar-highlight-background-color);
+      color: var(--sidebar-highlight-text-color);
+}
+.sidebar ul li.dragover .sidebar-block {
+      background: var(--sidebar-highlight-background-color);
+      color: var(--sidebar-highlight-text-color);
+}
+/*
+avoid hover effect trigger dragleave event
+https://stackoverflow.com/questions/19889615/can-an-angular-directive-pass-arguments-to-functions-in-expressions-specified-in
+*/
+.sidebar ul li * {
+      pointer-events: none;
+}
+/* main sidebar end */
+
 .main .content {
       flex: 1;
       background-color: bisque;

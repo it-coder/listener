@@ -1,4 +1,4 @@
-import { getClient, HttpVerb, ClientOptions, Client } from '@tauri-apps/api/http'
+import { getClient, HttpVerb, ClientOptions } from '@tauri-apps/api/http'
 import { AxiosError, AxiosPromise } from 'axios'
 import { ReasonPhrases, StatusCodes } from 'http-status-codes'
 import { TauriAxiosRequestConfig } from './type'
@@ -12,10 +12,10 @@ import {
 
 export const axiosTauriApiAdapter = (config: TauriAxiosRequestConfig): AxiosPromise =>
   new Promise(async (resolve, reject) => {
-      console.log("1111");
-      const clientOptions: ClientOptions = {};
-      const client : Client= new Client(1);
-    //const client = await getClient(clientOptions);
+    const clientOptions: ClientOptions = {};
+    const client = await getClient({
+      maxRedirections: config.maxRedirects
+    });
     let timeout = 5
     if (config.timeout !== undefined && config.timeout > 0) {
       timeout = Math.round(config.timeout / 1000)

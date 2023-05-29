@@ -2,39 +2,44 @@ import React from 'react';
 import './style/common.css'
 import  { Netease } from './provider/netease'
 
-// import axios from 'axios';
-// import axiosTauriApiAdapter from './adapter';
+import client from './server/index'
 
-import { getClient } from '@tauri-apps/api/http';
   
 
 function App() {
   console.log("ddd:");
 
-  console.log("ddd:", getClient);
-
   async function test_http() {
     
-    // await getClient().catch(e => {
-    //   console.log(e);
-    // })
-    // client.get("http://baidu.com").then((resp) => {
-    //   console.log(resp);
-    // }).catch((err) => {
-    //   console.log(err);
-    // })
+    client.get("https://baidu.com").then((resp) => {
+      console.log(resp);
+    }).catch((err) => {
+      console.log(err);
+    })
   }
 
   function test_netease() {
-    // Netease.ne_playlist_api("neplaylist_2075587022");
-    // Netease.custom_album_list_api();
-    // Netease.ne_bootstrap_track({id:"netrack_5308068"});
     Netease.test_netease();
   }
   return (
     <div className="wrapper">
       <div className="main">
-        <div className="sidebar"></div>
+        <div className="sidebar">
+          <div className="flex-scroll-wrapper"></div>
+          <div className="menu-control"></div>
+          <div className="menu-title">
+            <div className="title">平台聚合</div>
+          </div>
+          <ul className="nav masthead-nav">
+            <li>
+              <div className="sidebar-block">
+                <span className="icon li-featured-list"></span>
+                <a>精选歌单</a>
+              </div>
+            </li>
+          </ul>
+
+        </div>
         <div className="content"></div>
       </div>
       <div className="footer">
