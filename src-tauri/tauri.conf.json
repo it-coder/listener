@@ -4,7 +4,7 @@
     "beforeBuildCommand": "yarn build",
     "devPath": "http://localhost:1420",
     "distDir": "../dist",
-    "withGlobalTauri": false
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "listener",
@@ -12,10 +12,11 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
+      "all": true,
+      "http": {
+        "all":true,
+        "request": true,
+        "scope": ["https://baidu.com/*"]
       }
     },
     "bundle": {
