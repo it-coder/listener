@@ -16,7 +16,7 @@
       "http": {
         "all":true,
         "request": true,
-        "scope": ["https://baidu.com/*"]
+        "scope": ["http://localhost:1420/*", "https://baidu.com/*"]
       }
     },
     "bundle": {
