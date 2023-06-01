@@ -1,9 +1,3 @@
-class TestVO {
-    title: string
-    other: string
-    
-   
-}
 
 
 /**
@@ -42,3 +36,5 @@ class Song {
     source_url: String
     img_url: String
 }
+
+export { CustomAlbum, CustomAlbumDetail, Song};

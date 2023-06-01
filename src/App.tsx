@@ -1,34 +1,37 @@
-import {useRef, useEffect} from 'react';
 import  { Netease } from './provider/netease'
-import client from './server';
+//import client from './server';
 import axios from 'axios';
+
+
 
 import './static/css/common.css'
 import './static/css/icon.css'
 import './static/css/iparanoid.css'
-import { DOMElement } from 'react';
+debugger
+import { getClient as mine } from '@tauri-apps/api/http';
 // import './style/common.css'
 
-  
+async function initProfile() {
+  axios.get('/feather-sprite.svg').then((res) => {
+    let html = document.getElementById("feather-container") as HTMLElement;
+    html.innerHTML = res.data;
+    
+  });
+} 
+
+function test_tauri_api() {
+  async () => {
+    debugger
+    const client = await mine({});
+
+  }
+}
 
 function App() {
-  
-  const feather_ref = useRef(null);
   initProfile();
 
-  async function initProfile() {
-    useEffect(() => {
-
-      axios.get('/feather-sprite.svg').then((res) => {
-        const feather_document = feather_ref.current;
-        if (feather_document != null ) {
-          feather_document.innerHTML = res.data;
-        }
-      });
-    })
-   
-    
-  }
+  //client.get("https://baidu.com");
+  
 
   function test_netease() {
     Netease.test_netease();
@@ -36,7 +39,7 @@ function App() {
   return (
     <div className='body' >
        <div
-        id="feather-container" ref={feather_ref}
+        id="feather-container"
         style={{visibility: "hidden", position: "absolute", width: "0px", height: "0px"}}
       ></div>
     
@@ -95,7 +98,7 @@ function App() {
           </div>
         </div>
         <div className="footer">
-          <button onClick={test_netease} >点我</button>
+          <button onClick={test_tauri_api} >点我</button>
         </div>
       </div>
     </div>

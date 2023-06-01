@@ -1,5 +1,6 @@
 import * as forge from "node-forge";
 import { invoke } from '@tauri-apps/api/tauri';
+import {CustomAlbum, CustomAlbumDetail, Song} from '../model/view-model'
 
 export class Netease {
 
@@ -128,7 +129,9 @@ export class Netease {
             this.ne_bootstrap_track(customAlbumDetail.songs[0]);
             console.log("test_netease[track]:")
 
-            this.ne_lyric({id: "423406145"})
+            let option = new Song();
+            option.id = "423406145";
+            this.ne_lyric(option)
 
 
       }

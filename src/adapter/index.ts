@@ -12,7 +12,6 @@ import {
 
 export const axiosTauriApiAdapter = (config: TauriAxiosRequestConfig): AxiosPromise =>
   new Promise(async (resolve, reject) => {
-    const clientOptions: ClientOptions = {};
     const client = await getClient({
       maxRedirections: config.maxRedirects
     });
