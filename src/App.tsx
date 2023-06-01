@@ -94,6 +94,102 @@ function App() {
             </div>
             {/* 顶部导航 end */}
             {/* 顶部过滤器 satrt */}
+            <div
+                style= {{ overflowY: "scroll"}}
+                className="browser flex-scroll-wrapper"
+                infinite-scroll="scrolling()"
+                content-selector="'#playlist-content'">
+              
+              <div style={{ height: "64px" }}></div>
+              {/* hot playlist window */}
+              <div
+                  className="page page-hot-playlist"
+                  ng-show="current_tag==2 && is_window_hidden==1"
+                  ng-controller="PlayListController"
+                  ng-init="loadPlaylist();"
+                >
+                  {/* 平台list */}
+                <div className="source-list" ng-show="is_window_hidden==1">
+                  <div
+                    ng-repeat-start="source in ::sourceList"
+                    className="source-button"
+                    ng-class="{'active':tab === source.name}"
+                    ng-click="changeTab(source.name)"
+                  >
+                  <div className="buttontext">
+                    网易云
+                  </div>
+                  </div>
+                  <div
+                    ng-repeat-end
+                    ng-if="!$last"
+                    className="splitter"
+                  ></div>
+                </div>
+                {/* 标签过滤器 */}
+                <div className="playlist-filter">
+                  <div
+                    className="l1-button filter-item"
+                    ng-repeat="filter in playlistFilters[tab] || []"
+                    ng-click="changeFilter(filter.id)"
+                    ng-class="{'active':filter.id === currentFilterId}"
+                  >
+                    全部
+                  </div>
+                  <div
+                    className="l1-button filter-item"
+                    ng-show="playlistFilters[tab] && playlistFilters[tab].length > 0"
+                    ng-click="toggleMorePlaylists()"
+                    ng-class="{'active':showMore}"
+                  >
+                  <svg fill="currentColor" aria-hidden="true" focusable="false" data-prefix="far" data-icon="ellipsis-h" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="svg-inline--fa fa-ellipsis-h fa-w-16 fa-9x">
+                    <path fill="currentColor" d="M304 256c0 26.5-21.5 48-48 48s-48-21.5-48-48 21.5-48 48-48 48 21.5 48 48zm120-48c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zm-336 0c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48z" className="">
+                    </path>
+                  </svg>
+                  </div>
+                </div>
+
+                {/* hot playlist */}
+                <div className="site-wrapper-innerd" id="hotplaylist">
+                  <div className="cover-container" id="playlist-content">
+                    <ul  ng-style="{'padding-bottom':playlist.length == 0?'0px':'120px'}" className="playlist-covers">
+                      <li ng-repeat="i in result ">
+                        <div className="u-cover">
+                          <img
+                          err-src="https://y.gtimg.cn/mediastyle/global/img/playlist_300.png"
+                            ng-src="{{i.cover_img_url}}"
+                            ng-click="showPlaylist(i.id)"
+                          />
+                          <div
+                              className="covershadow"
+                              style={{ backgroundImage: `url("")` }}
+                            ></div>
+                          <div
+                            className="bottom"
+                            ng-click="directplaylist(i.id)"
+                          >  
+                          <svg  fill="currentColor" style={{ height: "44%", width:"44%", marginLeft: "4px" }} aria-hidden="true" focusable="false" data-prefix="fas" data-icon="play" className="svg-inline--fa fa-play fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                            <path fill="currentColor" d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z">
+                            </path>
+                          </svg>
+                          </div>
+                        </div>
+                        <div className="desc">
+                          <span
+                            className="title"
+                            ng-click="showPlaylist(i.id)"
+                            ><a href="">我的歌</a></span
+                          >
+                        </div>
+                      </li>
+                  
+                    </ul>
+                  </div>
+                </div>
+
+              </div>
+            
+            </div>
 
           </div>
         </div>
