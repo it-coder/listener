@@ -2,6 +2,7 @@ import  { Netease } from './provider/netease'
 //import client from './server';
 import axios from 'axios';
 import Platform from './components/Platform';
+import Filter from './components/Filter';
 
 
 
@@ -43,6 +44,8 @@ function App() {
       displayText: 'QQ音乐',
     },
   ];
+
+  const {recommend, all} = Netease.get_playlist_filters();
 
   //client.get("https://baidu.com");
   
@@ -114,7 +117,7 @@ function App() {
                 infinite-scroll="scrolling()"
                 content-selector="'#playlist-content'">
               
-              <div style={{ height: "64px" }}></div>
+              {/* <div style={{ height: "64px" }}></div> */}
               {/* hot playlist window */}
               <div
                   className="page page-hot-playlist"
@@ -122,33 +125,13 @@ function App() {
                   ng-controller="PlayListController"
                   ng-init="loadPlaylist();"
                 >
-                  {/* 平台list */}
-                  <Platform sourceList={sourceList} />
+                {/* 平台list */}
+                <Platform sourceList={sourceList} />
 
                  
         
                 {/* 标签过滤器 */}
-                <div className="playlist-filter">
-                  <div
-                    className="l1-button filter-item"
-                    ng-repeat="filter in playlistFilters[tab] || []"
-                    ng-click="changeFilter(filter.id)"
-                    ng-class="{'active':filter.id === currentFilterId}"
-                  >
-                    全部
-                  </div>
-                  <div
-                    className="l1-button filter-item"
-                    ng-show="playlistFilters[tab] && playlistFilters[tab].length > 0"
-                    ng-click="toggleMorePlaylists()"
-                    ng-class="{'active':showMore}"
-                  >
-                  <svg fill="currentColor" aria-hidden="true" focusable="false" data-prefix="far" data-icon="ellipsis-h" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="svg-inline--fa fa-ellipsis-h fa-w-16 fa-9x">
-                    <path fill="currentColor" d="M304 256c0 26.5-21.5 48-48 48s-48-21.5-48-48 21.5-48 48-48 48 21.5 48 48zm120-48c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48zm-336 0c-26.5 0-48 21.5-48 48s21.5 48 48 48 48-21.5 48-48-21.5-48-48-48z" className="">
-                    </path>
-                  </svg>
-                  </div>
-                </div>
+                <Filter filterList={recommend}></Filter>
 
                 {/* hot playlist */}
                 <div className="site-wrapper-innerd" id="hotplaylist">

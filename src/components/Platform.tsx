@@ -31,9 +31,10 @@ const Platform = (props: IProps) => {
 
 const PlatformItem = (props: IProps) => {
     const {source} = props;
+    const active = '_QQ_MUSIC'
     return (
         <>
-            <div className="source-button" >
+            <div className={["source-button", source?.displayId === active?'active':''].join(' ')} >
                 {source?.displayText}
             </div>
             <div className="splitter"></div>
