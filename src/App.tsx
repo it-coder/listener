@@ -1,13 +1,14 @@
 import  { Netease } from './provider/netease'
 //import client from './server';
 import axios from 'axios';
+import Platform from './components/Platform';
 
 
 
 import './static/css/common.css'
 import './static/css/icon.css'
 import './static/css/iparanoid.css'
-debugger
+
 import { getClient as mine } from '@tauri-apps/api/http';
 // import './style/common.css'
 
@@ -17,7 +18,7 @@ async function initProfile() {
     html.innerHTML = res.data;
     
   });
-} 
+}
 
 function test_tauri_api() {
   async () => {
@@ -29,6 +30,19 @@ function test_tauri_api() {
 
 function App() {
   initProfile();
+
+  const sourceList = [
+    {
+      name: 'netease',
+      displayId: '_NETEASE_MUSIC',
+      displayText: '网易云音乐',
+    },
+    {
+      name: 'qq',
+      displayId: '_QQ_MUSIC',
+      displayText: 'QQ音乐',
+    },
+  ];
 
   //client.get("https://baidu.com");
   
@@ -109,23 +123,10 @@ function App() {
                   ng-init="loadPlaylist();"
                 >
                   {/* 平台list */}
-                <div className="source-list" ng-show="is_window_hidden==1">
-                  <div
-                    ng-repeat-start="source in ::sourceList"
-                    className="source-button"
-                    ng-class="{'active':tab === source.name}"
-                    ng-click="changeTab(source.name)"
-                  >
-                  <div className="buttontext">
-                    网易云
-                  </div>
-                  </div>
-                  <div
-                    ng-repeat-end
-                    ng-if="!$last"
-                    className="splitter"
-                  ></div>
-                </div>
+                  <Platform sourceList={sourceList} />
+
+                 
+        
                 {/* 标签过滤器 */}
                 <div className="playlist-filter">
                   <div
