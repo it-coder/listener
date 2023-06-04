@@ -23,6 +23,9 @@ function test_tauri_api() {
 function App() {
   initProfile();
 
+  // 变量
+  let platform = '_NETEASE_MUSIC'
+
   const sourceList = [
     {
       name: 'netease',
@@ -51,10 +54,12 @@ function App() {
     cover_img_url:'http://p2.music.126.net/oFp3oKUuNNpoyyL1Tq0Sfw==/109951168637076947.jpg?param=512y512'
   }]
 
-
-  function test_netease() {
-   // Netease.test_netease();
+  // 切换平台
+  const onTogglePlatform: TogglePlatform = (id: string) => {
+    platform = id;
   }
+
+
   return (
     <div className='body' >
        <div
@@ -128,7 +133,8 @@ function App() {
                   ng-init="loadPlaylist();"
                 >
                 {/* 平台list */}
-                <Platform sourceList={sourceList} />
+                <Platform sourceList={sourceList} onTogglePlatform={onTogglePlatform} 
+                  activeTab={platform}/>
 
                  
         
@@ -197,8 +203,7 @@ function App() {
               <div className="ctrl">
                 <a
                   ng-click="showDialog(0, currentPlaying)"
-                  title="{{_ADD_TO_PLAYLIST}}"
-                >
+                  title="{{_ADD_TO_PLAYLIST}}">
                   <span className="icon li-songlist"></span>
                 </a>
                 <a

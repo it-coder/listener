@@ -129,7 +129,7 @@ export class Netease {
             this.ne_bootstrap_track(customAlbumDetail.songs[0]);
             console.log("test_netease[track]:")
 
-            let option = new Song();
+            let option: Song = {};
             option.id = "423406145";
             this.ne_lyric(option)
 

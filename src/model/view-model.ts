@@ -1,3 +1,4 @@
+import { type } from "os"
 
 
 /**
@@ -25,7 +26,7 @@ class CustomAlbumDetail extends CustomAlbum {
 /**
  * 歌曲信息
  */
-class Song {
+export interface Song {
     id: String
     title: String
     artist: String
@@ -37,4 +38,4 @@ class Song {
     img_url: String
 }
 
-export { CustomAlbum, CustomAlbumDetail, Song};
+export { CustomAlbum, CustomAlbumDetail};

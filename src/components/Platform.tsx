@@ -1,8 +1,9 @@
-import React from "react";
+import React, {useState} from "react";
 
 interface IProps {
-    sourceList?: Array<Source>
-    source?: Source
+    sourceList: Array<Source>
+    onTogglePlatform: TogglePlatform
+    activeTab?:string
 };
 
 interface Source {
@@ -11,36 +12,34 @@ interface Source {
     displayText: string
 }
 
- 
 
 const Platform = (props: IProps) => {
-    const { sourceList } = props;
+    const { sourceList, activeTab,  onTogglePlatform} = props;
+    const [active, setActive] = useState(activeTab)
     return (
         <div className="source-list" ng-show="is_window_hidden==1">
             {
                 sourceList?.map((source, index) => {
                     return (
-                        <PlatformItem source={source} key={source.displayId} />
+                        <React.Fragment key={source.displayId}>
+                            <div className={["source-button", source?.displayId === active?'active':''].join(' ')} 
+                                onClick={() => {
+                                    setActive(source.displayId)
+                                    onTogglePlatform(source.displayId)
+                                }}>
+                                {source?.displayText}
+                            </div>
+                            {
+                                sourceList.length-1 === index?null:(<div className="splitter"></div>)
+                            }
+                            
+                        </React.Fragment>
                     );
                 })
             }
         </div>
     );
 };
-
-
-const PlatformItem = (props: IProps) => {
-    const {source} = props;
-    const active = '_QQ_MUSIC'
-    return (
-        <>
-            <div className={["source-button", source?.displayId === active?'active':''].join(' ')} >
-                {source?.displayText}
-            </div>
-            <div className="splitter"></div>
-        </>
-    );
-}
 
 
 export default Platform;
