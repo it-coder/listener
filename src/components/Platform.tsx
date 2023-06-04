@@ -8,7 +8,7 @@ interface IProps {
 
 interface Source {
     name:string
-    displayId:string
+    id:string
     displayText: string
 }
 
@@ -21,11 +21,11 @@ const Platform = (props: IProps) => {
             {
                 sourceList?.map((source, index) => {
                     return (
-                        <React.Fragment key={source.displayId}>
-                            <div className={["source-button", source?.displayId === active?'active':''].join(' ')} 
+                        <React.Fragment key={source.id}>
+                            <div className={["source-button", source?.id === active?'active':''].join(' ')} 
                                 onClick={() => {
-                                    setActive(source.displayId)
-                                    onTogglePlatform(source.displayId)
+                                    setActive(source.id)
+                                    onTogglePlatform(source.id)
                                 }}>
                                 {source?.displayText}
                             </div>

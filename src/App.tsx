@@ -3,11 +3,14 @@ import axios from 'axios';
 import Platform from './components/Platform';
 import Filter from './components/Filter';
 
+import { getChannelById, getAllChannel } from './provider/provider'
+
 import './static/css/common.css'
 import './static/css/icon.css'
 import './static/css/iparanoid.css'
 
 import Playlist from './components/Playlist';
+import { Channel } from './provider/channel';
 
 async function initProfile() {
   axios.get('/feather-sprite.svg').then((res) => {
@@ -17,29 +20,30 @@ async function initProfile() {
   });
 }
 
-function test_tauri_api() {
-}
 
-function App() {
+ function App() {
   initProfile();
 
   // 变量
-  let platform = '_NETEASE_MUSIC'
+  let platform = 'qq'
 
-  const sourceList = [
-    {
-      name: 'netease',
-      displayId: '_NETEASE_MUSIC',
-      displayText: '网易云音乐',
-    },
-    {
-      name: 'qq',
-      displayId: '_QQ_MUSIC',
-      displayText: 'QQ音乐',
-    },
-  ];
+  const sourceList = getAllChannel();
+  // [
+  //   {
+  //     name: 'netease',
+  //     displayId: '_NETEASE_MUSIC',
+  //     displayText: '网易云音乐',
+  //   },
+  //   {
+  //     name: 'qq',
+  //     displayId: '_QQ_MUSIC',
+  //     displayText: 'QQ音乐',
+  //   },
+  // ];
 
-  const {recommend, all} = Netease.get_playlist_filters();
+  let channel: Channel = getChannelById(platform);
+
+  const {recommend, all} = channel.get_playlist_filters();
 
   const currentPlaying = {
     title:'海阔天空',
@@ -132,11 +136,10 @@ function App() {
                   ng-controller="PlayListController"
                   ng-init="loadPlaylist();"
                 >
+
                 {/* 平台list */}
                 <Platform sourceList={sourceList} onTogglePlatform={onTogglePlatform} 
                   activeTab={platform}/>
-
-                 
         
                 {/* 标签过滤器 */}
                 <Filter filterList={recommend}></Filter>

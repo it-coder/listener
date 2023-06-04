@@ -1,8 +1,9 @@
 import * as forge from "node-forge";
 import { invoke } from '@tauri-apps/api/tauri';
 import {CustomAlbum, CustomAlbumDetail, Song} from '../model/view-model'
+import { Channel } from "./channel";
 
-export class Netease {
+export class Netease extends Channel {
 
       private static _create_secret_key(size: number) : string {
             const result = [];
@@ -129,7 +130,7 @@ export class Netease {
             this.ne_bootstrap_track(customAlbumDetail.songs[0]);
             console.log("test_netease[track]:")
 
-            let option: Song = {};
+            let option: any = {};
             option.id = "423406145";
             this.ne_lyric(option)
 
@@ -219,7 +220,7 @@ export class Netease {
            
       }
 
-      public static get_playlist_filters() {
+      public get_playlist_filters(): any {
             const recommend = [
               { id: '', name: '全部' },
               { id: 'toplist', name: '排行榜' },
