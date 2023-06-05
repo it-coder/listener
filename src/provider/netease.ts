@@ -1,9 +1,9 @@
 import * as forge from "node-forge";
 import { invoke } from '@tauri-apps/api/tauri';
 import {CustomAlbum, CustomAlbumDetail, Song} from '../model/view-model'
-import { Channel } from "./channel";
+import { AbsChannel } from "./absChannel";
 
-export class Netease extends Channel {
+export class Netease extends AbsChannel {
 
       private static _create_secret_key(size: number) : string {
             const result = [];
@@ -220,7 +220,7 @@ export class Netease extends Channel {
            
       }
 
-      public get_playlist_filters(): any {
+      public async get_playlist_filters(): Promise<any> {
             const recommend = [
               { id: '', name: '全部' },
               { id: 'toplist', name: '排行榜' },

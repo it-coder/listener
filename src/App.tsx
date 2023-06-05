@@ -1,16 +1,16 @@
-import  { Netease } from './provider/netease'
+import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import Platform from './components/Platform';
 import Filter from './components/Filter';
 
-import { getChannelById, getAllChannel } from './provider/provider'
+import { getChannelById, getAllChannel } from './provider/channelProvider'
 
 import './static/css/common.css'
 import './static/css/icon.css'
 import './static/css/iparanoid.css'
 
 import Playlist from './components/Playlist';
-import { Channel } from './provider/channel';
+import { AbsChannel } from './provider/absChannel';
 
 async function initProfile() {
   axios.get('/feather-sprite.svg').then((res) => {
@@ -21,13 +21,12 @@ async function initProfile() {
 }
 
 
- function App() {
+function App() {
   initProfile();
 
   // 变量
-  let platform = 'qq'
+  let channelId = 'qq'
 
-  const sourceList = getAllChannel();
   // [
   //   {
   //     name: 'netease',
@@ -41,9 +40,17 @@ async function initProfile() {
   //   },
   // ];
 
-  let channel: Channel = getChannelById(platform);
+  const filterRef = useRef()
+  
+  const [recommendFilter, setRecommendFilter] = useState([])
+  let channel: AbsChannel = getChannelById(channelId);
 
-  const {recommend, all} = channel.get_playlist_filters();
+  channel.get_playlist_filters().then((resp) => {
+    const {recommend, all} = resp;
+    setRecommendFilter(recommend);
+  });
+
+  
 
   const currentPlaying = {
     title:'海阔天空',
@@ -60,7 +67,13 @@ async function initProfile() {
 
   // 切换平台
   const onTogglePlatform: TogglePlatform = (id: string) => {
-    platform = id;
+    channelId = id;
+    console.log(filterRef.current)
+    filterRef.current?.changeChannel(channelId)
+  }
+
+  const onToggleFilter: ToggleFilter = (id:string) => {
+    console.log(id);
   }
 
 
@@ -138,11 +151,10 @@ async function initProfile() {
                 >
 
                 {/* 平台list */}
-                <Platform sourceList={sourceList} onTogglePlatform={onTogglePlatform} 
-                  activeTab={platform}/>
+                <Platform onTogglePlatform={onTogglePlatform} />
         
                 {/* 标签过滤器 */}
-                <Filter filterList={recommend}></Filter>
+                <Filter ref= {filterRef} onToggleFilter={onToggleFilter} />
 
                 {/* hot playlist */}
                 <Playlist covers={covers} />
