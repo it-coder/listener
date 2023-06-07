@@ -56,6 +56,7 @@ function App() {
   // 变量
   let channelId = ""
   const filterRef = useRef()
+  const playlistRef = useRef()
   let filterId = ""
 
 
@@ -68,6 +69,7 @@ function App() {
   // 筛选歌曲分类
   const onToggleFilter: ToggleFilter = (id:string) => {
     filterId = id
+    playlistRef.current?.init(channelId, filterId)
   }
 
 
@@ -151,7 +153,7 @@ function App() {
                 <Filter ref= {filterRef} onToggleFilter={onToggleFilter} />
 
                 {/* hot playlist */}
-                <Playlist covers={covers} />
+                <Playlist ref={playlistRef} covers={covers} />
 
               </div>
             

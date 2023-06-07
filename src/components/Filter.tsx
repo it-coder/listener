@@ -6,10 +6,6 @@ interface IProps {
     onToggleFilter: ToggleFilter
 }
 
-interface FilterObj {
-    id: string
-    name: string
-}
 
 
 function toggle() {
@@ -23,7 +19,7 @@ const Filter = (props: IProps, ref:any) => {
     const [filterId, setFilterId] = useState()
 
 
-     useImperativeHandle(ref, () => ({
+    useImperativeHandle(ref, () => ({
         changeChannel: (channelId: any) => {
            const channel : AbsChannel = getChannelInstanceById(channelId)
            channel.get_playlist_filters().then((resp) => {

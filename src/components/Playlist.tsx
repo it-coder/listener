@@ -1,3 +1,6 @@
+import {useState, useImperativeHandle, forwardRef} from 'react'
+import { AbsChannel } from "../provider/absChannel"
+import { getChannelInstanceById } from '../provider/channelProvider'
 
 
 interface IProps {
@@ -13,22 +16,36 @@ interface Cover {
 
 }
 
-const Playlist = (props: IProps) => {
+const Playlist = (props: IProps, ref:any) => {
     const { covers } = props;
+
+    const [albums, setAlbums] = useState([])
+
+
+    useImperativeHandle(ref, () => ({
+        init: (channelId: any, filterId: any) => {
+           const channel : AbsChannel = getChannelInstanceById(channelId)
+           channel.custom_album_list_api().then((resp) => {
+                setAlbums(resp)
+           })
+
+           
+        }
+    }));
 
     return (
         <div className="site-wrapper-innerd" id="hotplaylist">
             <div className="cover-container" id="playlist-content">
-                <ul  ng-style="{'padding-bottom':playlist.length == 0?'0px':'120px'}" className="playlist-covers">
+                <ul style={{'paddingBottom': albums.length == 0?'0px':'120px'}} className="playlist-covers">
                     {
-                        covers?.map((cover, index) => {
+                        albums?.map((album:any, index) => {
                             
                             return (
-                                <li key={cover.id}>
+                                <li key={album.id}>
                                     <div className="u-cover">
                                         <img
                                             err-src="https://y.gtimg.cn/mediastyle/global/img/playlist_300.png"
-                                            src={cover.cover_img_url}
+                                            src={album.cover_img_url}
                                             ng-click="showPlaylist(i.id)"
                                         />
                                         <div
@@ -45,7 +62,7 @@ const Playlist = (props: IProps) => {
                                         <span
                                             className="title"
                                             ng-click="showPlaylist(i.id)"
-                                        ><a href="">{cover.title}</a>
+                                        ><a href="">{album.title}</a>
                                         </span>
                                     </div>
                                 </li>
@@ -60,4 +77,4 @@ const Playlist = (props: IProps) => {
 } 
 
 
-export default Playlist;
+export default forwardRef(Playlist);

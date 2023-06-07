@@ -121,18 +121,18 @@ export class Netease extends AbsChannel {
       }
 
       public static async test_netease() {
-            let albums = await this.custom_album_list_api();
-            console.log("test_netease[albums]:", albums)
+            // let albums = await custom_album_list_api();
+            // console.log("test_netease[albums]:", albums)
 
-            let customAlbumDetail = await this.ne_album_list_detail_api(albums[0].id);
-            console.log("test_netease[customAlbumDetail]:", customAlbumDetail)
+            // let customAlbumDetail = await this.ne_album_list_detail_api(albums[0].id);
+            // console.log("test_netease[customAlbumDetail]:", customAlbumDetail)
 
-            this.ne_bootstrap_track(customAlbumDetail.songs[0]);
-            console.log("test_netease[track]:")
+            // this.ne_bootstrap_track(customAlbumDetail.songs[0]);
+            // console.log("test_netease[track]:")
 
-            let option: any = {};
-            option.id = "423406145";
-            this.ne_lyric(option)
+            // let option: any = {};
+            // option.id = "423406145";
+            // this.ne_lyric(option)
 
 
       }
@@ -140,7 +140,7 @@ export class Netease extends AbsChannel {
        * 获取自定义专辑
        * @returns 自定义专辑列表
        */
-      public static async custom_album_list_api() : Promise<CustomAlbum[]> {
+      public async custom_album_list_api() : Promise<CustomAlbum[]> {
             console.log("custom_album_list_api")
             let rs = await invoke<Array<CustomAlbum>>(TauriApi.CUSTOM_ALBUM_LIST_API, {params : {order:"hot"}});
             return rs;
