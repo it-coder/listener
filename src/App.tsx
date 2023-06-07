@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef,useEffect  } from 'react';
 import axios from 'axios';
 import Platform from './components/Platform';
 import Filter from './components/Filter';
 
-import { getChannelById, getAllChannel } from './provider/channelProvider'
+import { getDefaultChannel } from './provider/channelProvider'
 
 import './static/css/common.css'
 import './static/css/icon.css'
@@ -24,9 +24,7 @@ async function initProfile() {
 function App() {
   initProfile();
 
-  // 变量
-  let channelId = 'qq'
-
+  
   // [
   //   {
   //     name: 'netease',
@@ -39,16 +37,6 @@ function App() {
   //     displayText: 'QQ音乐',
   //   },
   // ];
-
-  const filterRef = useRef()
-  
-  const [recommendFilter, setRecommendFilter] = useState([])
-  let channel: AbsChannel = getChannelById(channelId);
-
-  channel.get_playlist_filters().then((resp) => {
-    const {recommend, all} = resp;
-    setRecommendFilter(recommend);
-  });
 
   
 
@@ -65,15 +53,21 @@ function App() {
     cover_img_url:'http://p2.music.126.net/oFp3oKUuNNpoyyL1Tq0Sfw==/109951168637076947.jpg?param=512y512'
   }]
 
+  // 变量
+  let channelId = ""
+  const filterRef = useRef()
+  let filterId = ""
+
+
   // 切换平台
   const onTogglePlatform: TogglePlatform = (id: string) => {
     channelId = id;
-    console.log(filterRef.current)
     filterRef.current?.changeChannel(channelId)
   }
-
+ 
+  // 筛选歌曲分类
   const onToggleFilter: ToggleFilter = (id:string) => {
-    console.log(id);
+    filterId = id
   }
 
 

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { getAllChannel } from '../provider/channelProvider'
 
 interface IProps {
@@ -12,6 +12,10 @@ const Platform = (props: IProps) => {
 
     const { onTogglePlatform} = props;
     const [channelId, setChannelId] = useState(cannelList[0].id)
+
+    useEffect(() => {
+        onTogglePlatform(channelId)
+    })
     return (
         <div className="source-list" ng-show="is_window_hidden==1">
             {

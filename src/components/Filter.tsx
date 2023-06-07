@@ -1,5 +1,5 @@
 import React, {useState, useImperativeHandle, forwardRef} from "react"
-import { getChannelById } from '../provider/channelProvider'
+import { getChannelInstanceById } from '../provider/channelProvider'
 import { AbsChannel } from "../provider/absChannel"
 
 interface IProps {
@@ -11,15 +11,21 @@ interface FilterObj {
     name: string
 }
 
+
+function toggle() {
+
+}
+
 const Filter = (props: IProps, ref:any) => {
     const { onToggleFilter } = props;
 
     const [filterList, setFilterList] = useState([])
     const [filterId, setFilterId] = useState()
 
+
      useImperativeHandle(ref, () => ({
         changeChannel: (channelId: any) => {
-           const channel : AbsChannel = getChannelById(channelId)
+           const channel : AbsChannel = getChannelInstanceById(channelId)
            channel.get_playlist_filters().then((resp) => {
                 const {recommend, all} = resp;
                 setFilterList(recommend);
