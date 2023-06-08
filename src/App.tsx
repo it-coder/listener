@@ -2,6 +2,7 @@ import React, { useState, useRef,useEffect  } from 'react';
 import axios from 'axios';
 import Platform from './components/Platform';
 import Filter from './components/Filter';
+import Sidebar from './pages/Sidebar'
 
 import { getDefaultChannel } from './provider/channelProvider'
 
@@ -22,10 +23,9 @@ async function initProfile() {
 
 
 function App() {
-  initProfile();
+  // initProfile();
 
-  
-  // [
+// [
   //   {
   //     name: 'netease',
   //     displayId: '_NETEASE_MUSIC',
@@ -75,29 +75,16 @@ function App() {
 
   return (
     <div className='body' >
-       <div
-        id="feather-container"
-        style={{visibility: "hidden", position: "absolute", width: "0px", height: "0px"}}
-      ></div>
+        <div
+          id="feather-container"
+          style={{visibility: "hidden", position: "absolute", width: "0px", height: "0px"}}>
+        </div>
     
       <div className="wrapper">
         <div className="main">
-          <div className="sidebar">
-            <div className="flex-scroll-wrapper">
-              <div className="menu-control"></div>
-              <div className="menu-title">
-                <div className="title">平台聚合</div>
-              </div>
-              <ul className="nav masthead-nav">
-                <li>
-                  <div className="sidebar-block">
-                    <span className="icon li-featured-list"></span>
-                    <a>精选歌单</a>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
+          
+          <Sidebar />
+
           <div className="content">
             {/* 顶部导航 start */}
             <div className="navigation">
@@ -153,7 +140,7 @@ function App() {
                 <Filter ref= {filterRef} onToggleFilter={onToggleFilter} />
 
                 {/* hot playlist */}
-                <Playlist ref={playlistRef} covers={covers} />
+                <Playlist ref={playlistRef} />
 
               </div>
             
