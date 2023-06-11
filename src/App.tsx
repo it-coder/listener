@@ -10,7 +10,7 @@ import './static/css/common.css'
 import './static/css/icon.css'
 import './static/css/iparanoid.css'
 
-import Playlist from './components/Playlist';
+import Playlist from './components/Album';
 import { AbsChannel } from './provider/absChannel';
 import Header from './pages/Header';
 import Footer from './pages/Footer';
