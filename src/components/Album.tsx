@@ -1,24 +1,13 @@
 import {useState, useImperativeHandle, forwardRef} from 'react'
 import { AbsChannel } from "../provider/absChannel"
 import { getChannelInstanceById } from '../provider/channelProvider'
+import { useNavigate } from 'react-router-dom'
 
 
-interface IProps {
-    covers?: Array<Cover>
 
 
-}
-
-interface Cover {
-    cover_img_url:string
-    title:string
-    id:string
-
-}
-
-const Playlist = (props: IProps, ref:any) => {
-    const { covers } = props;
-
+const Album = (props:any,ref:any) => {
+    const navigate = useNavigate()
     const [albums, setAlbums] = useState([])
 
 
@@ -33,6 +22,7 @@ const Playlist = (props: IProps, ref:any) => {
         }
     }));
 
+
     return (
         <div className="site-wrapper-innerd" id="hotplaylist">
             <div className="cover-container" id="playlist-content">
@@ -46,7 +36,9 @@ const Playlist = (props: IProps, ref:any) => {
                                         <img
                                             err-src="https://y.gtimg.cn/mediastyle/global/img/playlist_300.png"
                                             src={album.cover_img_url}
-                                            ng-click="showPlaylist(i.id)"
+                                            onClick={ () => {
+                                                navigate('/container/playlist')
+                                            }}
                                         />
                                         <div
                                             className="bottom"
@@ -77,4 +69,4 @@ const Playlist = (props: IProps, ref:any) => {
 } 
 
 
-export default forwardRef(Playlist);
+export default forwardRef(Album);

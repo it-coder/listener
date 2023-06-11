@@ -13,9 +13,10 @@ const Platform = (props: IProps) => {
     const { onTogglePlatform} = props;
     const [channelId, setChannelId] = useState(cannelList[0].id)
 
-    useEffect(() => {
-        onTogglePlatform(channelId)
-    })
+    // useEffect(() => {
+    //     console.log('Platform')
+    //     onTogglePlatform(channelId)
+    // })
     return (
         <div className="source-list" ng-show="is_window_hidden==1">
             {

@@ -15,7 +15,7 @@ const Albumlist = () => {
   // 切换平台
   const onTogglePlatform: TogglePlatform = (id: string) => {
     channelId = id;
-    filterRef.current?.changeChannel(channelId)
+    filterRef.current?.init(channelId)
   }
  
   // 筛选歌曲分类
