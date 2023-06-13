@@ -6,17 +6,19 @@ import { useNavigate } from 'react-router-dom'
 
 
 
-const Album = (props:any,ref:any) => {
+const Album = (props:any, ref:any) => {
     const navigate = useNavigate()
     const [albums, setAlbums] = useState([])
 
 
     useImperativeHandle(ref, () => ({
         init: (channelId: any, filterId: any) => {
-           const channel : AbsChannel = getChannelInstanceById(channelId)
-           channel.custom_album_list_api().then((resp) => {
+            console.log('init:', channelId, filterId)
+            
+            const channel : AbsChannel = getChannelInstanceById(channelId)
+            channel.custom_album_list_api().then((resp) => {
                 setAlbums(resp)
-           })
+            })
 
            
         }

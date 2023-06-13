@@ -3,32 +3,41 @@ import { getChannelInstanceById } from '../provider/channelProvider'
 import { AbsChannel } from "../provider/absChannel"
 
 interface IProps {
-    onToggleFilter: ToggleFilter
+    albumRef:any
 }
 
 
 const Filter = (props: IProps, ref:any) => {
-    const { onToggleFilter } = props;
-
+    const { albumRef } = props
     const [filterList, setFilterList] = useState([])
     const [filterId, setFilterId] = useState()
 
-
+    // 平台id
+    let channelId = 'test';
 
     useImperativeHandle(ref, () => ({
         init: (channelId: any) => {
-           const channel : AbsChannel = getChannelInstanceById(channelId)
-           channel.get_playlist_filters().then((resp) => {
+            channelId = channelId
+
+            const channel : AbsChannel = getChannelInstanceById(channelId)
+            channel.get_playlist_filters().then((resp) => {
                 const {recommend, all} = resp;
                 setFilterList(recommend);
                 const filterId = recommend[0].id
                 setFilterId(filterId)
                 console.log('1111111111111')
-           });
-
-           
+            });
         }
     }));
+
+    useEffect(() => {
+        console.log('filter')
+    })
+
+    const onToggleFilter = (filterId: any) => {
+        setFilterId(filterId)
+        albumRef?.current.init(channelId, filterId)
+    }
 
     return (
         <div className="playlist-filter">
@@ -39,7 +48,6 @@ const Filter = (props: IProps, ref:any) => {
                             key={filter.id}
                             className={["l1-button filter-item", filter.id === filterId?'active':''].join(' ')}
                             onClick={() => {
-                                setFilterId(filter.id)
                                 onToggleFilter(filter.id)
                             }}
                         >

@@ -1,31 +1,35 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect,forwardRef} from "react";
 import { getAllChannel } from '../provider/channelProvider'
 
 interface IProps {
-    onTogglePlatform: TogglePlatform
+    filterRef: any
 };
 
 
-const Platform = (props: IProps) => {
+
+const Platform = (props:IProps) => {
 
     const cannelList:Array<any> = getAllChannel();
 
-    const { onTogglePlatform} = props;
+    const { filterRef } = props;
     const [channelId, setChannelId] = useState(cannelList[0].id)
 
-    // useEffect(() => {
-    //     console.log('Platform')
-    //     onTogglePlatform(channelId)
-    // })
+    useEffect(() => {
+        onTogglePlatform(channelId)
+    })
+    const onTogglePlatform = (id: string) => {
+        setChannelId(id)
+        filterRef?.current.init(id)
+    }
+
     return (
-        <div className="source-list" ng-show="is_window_hidden==1">
+        <div className="source-list">
             {
                 cannelList?.map((channe, index) => {
                     return (
                         <React.Fragment key={channe.id}>
                             <div className={["source-button", channe.id === channelId?'active':''].join(' ')} 
                                 onClick={() => {
-                                    setChannelId(channe.id)
                                     onTogglePlatform(channe.id)
                                 }}>
                                 {channe?.displayText}
