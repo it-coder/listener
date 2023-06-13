@@ -7,12 +7,8 @@ import Album from '../components/Album';
 
 const Albumlist = () => {
   // 变量
-  let channelId = ""
   const filterRef = useRef()
   const albumRef = useRef()
-  let filterId = ""
-
- 
   return (
         <div
             style= {{ overflowY: "scroll"}}

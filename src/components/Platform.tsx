@@ -17,9 +17,11 @@ const Platform = (props:IProps) => {
     const [channelId, setChannelId] = useState(cannelList[0].id)
 
     useEffect(() => {
+        console.log('Platform')
         onTogglePlatform(channelId)
     })
     const onTogglePlatform = (id: string) => {
+        localStorage.setItem('channelId', id)
         setChannelId(id)
         filterRef?.current.init(id)
     }

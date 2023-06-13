@@ -12,20 +12,16 @@ const Filter = (props: IProps, ref:any) => {
     const [filterList, setFilterList] = useState([])
     const [filterId, setFilterId] = useState()
 
-    // 平台id
-    let channelId = 'test';
-
+ 
     useImperativeHandle(ref, () => ({
         init: (channelId: any) => {
-            channelId = channelId
-
+            console.log('Filter init ')
             const channel : AbsChannel = getChannelInstanceById(channelId)
             channel.get_playlist_filters().then((resp) => {
                 const {recommend, all} = resp;
                 setFilterList(recommend);
                 const filterId = recommend[0].id
                 setFilterId(filterId)
-                console.log('1111111111111')
             });
         }
     }));
@@ -36,6 +32,8 @@ const Filter = (props: IProps, ref:any) => {
 
     const onToggleFilter = (filterId: any) => {
         setFilterId(filterId)
+
+        const channelId = localStorage.getItem('channelId')
         albumRef?.current.init(channelId, filterId)
     }
 

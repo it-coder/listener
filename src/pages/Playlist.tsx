@@ -1,10 +1,17 @@
+import { useNavigate } from "react-router-dom"
 
 const Playlist = () => {
     const cover_img_url= ''
     const playlist_title = ""
+    const navigate = useNavigate()
+    const go2 = () => {
+        console.log(11122)
+        navigate('/container/Albumlist')
+  }
 
     return (
         <div className="page">
+            <button onClick={go2}>BACK</button>
             <div className="playlist-detail">
                 <div className="detail-head">
                     <div className="detail-head-cover">

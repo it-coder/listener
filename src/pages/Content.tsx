@@ -8,24 +8,14 @@ import Playlist from "./Playlist";
 
 const Content = () => {
       const navigate = useNavigate()
-      
-      // useEffect(() => {
-      //       navigate('/container/Albumlist')
-      // })
-      
       const go = () => {
-            navigate('/container/Albumlist')
-      }
-
-      const go2 = () => {
             navigate('/container/playlist')
       }
-      
       return (
             <div className="content">
                   <Header />
-                  <button onClick={go}>back</button>
-                  <button onClick={go2}>back2</button>
+                  <button onClick={go} >GO</button>
+                  {/* <Albumlist /> */}
                   <Routes>
                         <Route path="/container" element={<Container/>} >
                               <Route index path="/container/Albumlist" element={<Albumlist/>} />
