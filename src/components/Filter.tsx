@@ -22,6 +22,8 @@ const Filter = (props: IProps, ref:any) => {
                 setFilterList(recommend);
                 const filterId = recommend[0].id
                 setFilterId(filterId)
+                // 初始化 歌单
+                onToggleFilter(filterId)
             });
         }
     }));

@@ -1,4 +1,4 @@
-import {useState, useImperativeHandle, forwardRef} from 'react'
+import {useState, useEffect, useImperativeHandle, forwardRef} from 'react'
 import { AbsChannel } from "../provider/absChannel"
 import { getChannelInstanceById } from '../provider/channelProvider'
 import { useNavigate } from 'react-router-dom'
@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 
 
 const Album = (props:any, ref:any) => {
+    const { onToggleAlbum } = props
     const navigate = useNavigate()
     const [albums, setAlbums] = useState([])
 
@@ -24,6 +25,14 @@ const Album = (props:any, ref:any) => {
         }
     }));
 
+    useEffect(() => {
+        console.log('album init')
+    })
+
+    const to_playlist = () => {
+        navigate('/playlist')
+    }
+
 
     return (
         <div className="site-wrapper-innerd" id="hotplaylist">
@@ -38,9 +47,7 @@ const Album = (props:any, ref:any) => {
                                         <img
                                             err-src="https://y.gtimg.cn/mediastyle/global/img/playlist_300.png"
                                             src={album.cover_img_url}
-                                            onClick={ () => {
-                                                navigate('/container/playlist')
-                                            }}
+                                            onClick={to_playlist}
                                         />
                                         <div
                                             className="bottom"

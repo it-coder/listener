@@ -1,27 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Albumlist from "./Albumlist";
 import Header from "./Header";
-import { Route, Routes, useNavigate } from "react-router-dom"
+import { Route, Routes, useNavigate, Outlet } from "react-router-dom"
 import Container from "./Container";
 import Playlist from "./Playlist";
+import Album from "../components/Album";
 
 
 const Content = () => {
-      const navigate = useNavigate()
-      const go = () => {
-            navigate('/container/playlist')
-      }
+     
       return (
             <div className="content">
                   <Header />
-                  <button onClick={go} >GO</button>
                   {/* <Albumlist /> */}
                   <Routes>
-                        <Route path="/container" element={<Container/>} >
-                              <Route index path="/container/Albumlist" element={<Albumlist/>} />
-                              <Route path="/container/playlist" element={ <Playlist /> } />
-                        </Route>
+                        <Route index element={<Albumlist/>} />
+                        <Route path="/albumlist" element={<Albumlist/>} />
+                        <Route path="/playlist" element={ <Playlist /> } />
                   </Routes>
+                  <Outlet></Outlet>
             </div>
       );
 }

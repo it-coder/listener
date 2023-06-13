@@ -1,5 +1,5 @@
 import React, { useState, useRef,useEffect  } from 'react';
-
+import { useNavigate } from 'react-router-dom';
 
 import Platform from '../components/Platform';
 import Filter from '../components/Filter';
@@ -9,12 +9,14 @@ const Albumlist = () => {
   // 变量
   const filterRef = useRef()
   const albumRef = useRef()
+
   return (
         <div
             style= {{ overflowY: "scroll"}}
             className="browser flex-scroll-wrapper"
             infinite-scroll="scrolling()"
             content-selector="'#playlist-content'">
+
           
           {/* <div style={{ height: "64px" }}></div> */}
           {/* hot playlist window */}
