@@ -1,4 +1,6 @@
 import React, {useState, useEffect,forwardRef} from "react";
+import { init, getInstance } from '../db/index';
+
 import { getAllChannel } from '../provider/channelProvider'
 
 interface IProps {
