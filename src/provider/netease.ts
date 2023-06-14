@@ -56,7 +56,7 @@ export class Netease extends AbsChannel {
             const enc_sec_key = this._rsa_encrypt(sec_key, pubKey, modulus);
             const data = {
                   params: enc_text,
-                  enc_sec_key: enc_sec_key,
+                  encSecKey: enc_sec_key,
             };
             
             return data;
@@ -148,19 +148,9 @@ export class Netease extends AbsChannel {
             }
             const url = 'https://music.163.com/weapi/toplist/detail';
             const data:any = this.weapi({});
-            console.log("data : ", data)
-
-            const cookie = this.cookie_build();
             return {
               success: (fn:any) => {
-                  const config:any = { headers: 
-                                          {
-                                                cookie: `_ntes_nuid=${cookie._ntes_nuid};_ntes_nnid=${cookie._ntes_nnid}`,
-                                                Referer: 'https://music.163.com/'
-                                          } 
-                                    }
-                client.post(url, new URLSearchParams(data), config).then((response) => {
-                  console.log("to : ", response)
+                client.post(url, new URLSearchParams(data)).then((response) => {
                   const result:any = [];
                   response.data.list.forEach((item:any) => {
                     const playlist = {
@@ -182,8 +172,6 @@ export class Netease extends AbsChannel {
             const offset = getParameterByName('offset', url);
             const filterId = getParameterByName('filter_id', url);
             if (filterId === 'toplist') {
-                  console.log('toplist')
-                  // TODO FIX
                   return this.ne_show_toplist(offset);
             }
             
