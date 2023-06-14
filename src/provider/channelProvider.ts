@@ -32,7 +32,7 @@ const PROVIDERS = [
 ];
 
 
-export function getChannelInstanceById(sourceId:string): any {
+export function getChannelInstanceById(sourceId:string|null): any {
     return (PROVIDERS.find((i) => i.id === sourceId) || {}).instance;
 }
 

@@ -1,4 +1,8 @@
 import { useNavigate } from "react-router-dom"
+import { useEffect } from "react"
+import { getChannelInstanceById } from "../provider/channelProvider"
+import { AbsChannel } from "../provider/absChannel"
+import { channel } from "diagnostics_channel"
 
 const Playlist = () => {
     const cover_img_url= ''
@@ -11,6 +15,11 @@ const Playlist = () => {
             album:"album"
         }
     ]
+
+    useEffect(() => {
+        const channelId = localStorage.getItem('channelId')
+        const channel: AbsChannel = getChannelInstanceById(channelId)
+    })
 
     return (
         <div className="page">

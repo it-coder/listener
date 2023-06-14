@@ -17,10 +17,10 @@ const Album = (props:any, ref:any) => {
             console.log('init:', channelId, filterId)
             
             const channel : AbsChannel = getChannelInstanceById(channelId)
-            channel.custom_album_list_api().then((resp) => {
-                setAlbums(resp)
-            })
 
+            channel.get_album_list('?filter_id=toplist').success((resp:any) => {
+                setAlbums(resp.result)
+            })
            
         }
     }));
