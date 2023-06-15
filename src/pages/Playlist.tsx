@@ -1,10 +1,11 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { useEffect } from "react"
 import { getChannelInstanceById } from "../provider/channelProvider"
 import { AbsChannel } from "../provider/absChannel"
 import { channel } from "diagnostics_channel"
 
 const Playlist = () => {
+    const params:any = useParams()
     const cover_img_url= ''
     const playlist_title = ""
 
@@ -19,6 +20,14 @@ const Playlist = () => {
     useEffect(() => {
         const channelId = localStorage.getItem('channelId')
         const channel: AbsChannel = getChannelInstanceById(channelId)
+
+        const list_id = params.id
+
+        console.log('params:', list_id)
+
+        channel.get_playlist(`?list_id=${list_id}`).success((resp:any) => {
+            console.log('get_playlist', resp)
+        })
     })
 
     return (

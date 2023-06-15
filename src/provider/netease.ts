@@ -80,32 +80,116 @@ export class Netease extends AbsChannel {
             };
       }
 
-      private ne_get_playlist(id: string) : object {
-            const d = {
-                  id: id,
-                  offset: 0,
-                  total: true,
-                  limit: 1000,
-                  n: 1000,
-                  csrf_token: '',
+      private ne_get_playlist(url: string) : any {
+            return {
+                  success: (fn:any) => {
+                        const list_id = getParameterByName('list_id', url)?.split('_').pop();
+                        const target_url = 'https://music.163.com/weapi/v3/playlist/detail';
+                        const d = {
+                              id: list_id,
+                              offset: 0,
+                              total: true,
+                              limit: 1000,
+                              n: 1000,
+                              csrf_token: '',
+                        };
+                        const data:any = this.weapi(d);
+                        const that = this
+
+                        const config = {headers: {
+                              cookies: this.cookie_build()
+                        }}
+
+                        client.post(target_url, new URLSearchParams(data), config).then((response) => {
+                              const { data: res_data } = response;
+                              const info = {
+                                    id: `neplaylist_${list_id}`,
+                                    cover_img_url: res_data.playlist.coverImgUrl,
+                                    title: res_data.playlist.name,
+                                    source_url: `https://music.163.com/#/playlist?id=${list_id}`,
+                              };
+                              const max_allow_size = 1000;
+                              const trackIdsArray:Array<any> = this.split_array(
+                                    res_data.playlist.trackIds,
+                                    max_allow_size
+                              );
+
+                              console.log('url2222:', trackIdsArray)
+
+                  
+                              function ng_parse_playlist_tracks_wrapper(trackIds: Array<any>, callback:any) : any{
+                                    return that.ng_parse_playlist_tracks(trackIds, callback);
+                              }
+
+                              ng_parse_playlist_tracks_wrapper(trackIdsArray, (err:any, tracks:any) => {
+                                    return fn({ tracks, info });
+                              })
+                        });
+                  },
             };
-            const data = this.weapi(d);
-            return data;
       }
+
+
+      private ng_parse_playlist_tracks(playlist_tracks:Array<any>, callback:any) {
+            const target_url = 'https://music.163.com/weapi/v3/song/detail';
+            const  test = [1,2,3]
+            playlist_tracks.forEach((o:any) => {
+                  console.log(o)
+            })
+            const track_ids = (playlist_tracks as []).map((i) => {
+                  console.log(i)
+                  return i
+            });
+            const d = {
+                  c: `[${track_ids.map((id:any) => `{"id":${id}}`).join(',')}]`,
+                  ids: `[${track_ids.join(',')}]`,
+            };
+            const data:any = this.weapi(d);
+
+            const config = {headers: {
+                  cookies: this.cookie_build()
+            }}
+
+            console.log('ng_parse_playlist_tracks:', playlist_tracks.length)
+
+            client.post(target_url, new URLSearchParams(data), config).then((response) => {
+                  const tracks = response.data.songs.map((track_json:any) => ({
+                        id: `netrack_${track_json.id}`,
+                        title: track_json.name,
+                        artist: track_json.ar[0].name,
+                        artist_id: `neartist_${track_json.ar[0].id}`,
+                        album: track_json.al.name,
+                        album_id: `nealbum_${track_json.al.id}`,
+                        source: 'netease',
+                        source_url: `https://music.163.com/#/song?id=${track_json.id}`,
+                        img_url: track_json.al.picUrl,
+                        // url: `netrack_${track_json.id}`,
+                  }));
+            
+                  return callback(null, tracks);
+            });
+      }
+
+      private split_array(myarray: Array<any>, size:number) : Array<any>{
+            const count = Math.ceil(myarray.length / size);
+            let result = [];
+            for (let i = 0; i < count; i += 1) {
+              result.push(myarray.slice(i * size, (i + 1) * size));
+            }
+            return result;
+          }
 
       private cookie_build() : any {
             const domain = 'https://music.163.com';
-            const nuidName = '_ntes_nuid';
-            const nnidName = '_ntes_nnid';
-            const nuidValue = this._create_secret_key(32);
-            const nnidValue = `${nuidValue},${new Date().getTime()}`;
-            // netease default cookie expire time: 100 years
-            const expire =
-            (new Date().getTime() + 1e3 * 60 * 60 * 24 * 365 * 100) / 1000;
-            return {
-                  "_ntes_nuid": nuidValue,
-                  "_ntes_nnid": nnidValue
-            };
+            let cookie:any = localStorage.getItem(domain)
+            if (!cookie) {
+                  const nuidValue = this._create_secret_key(32);
+                  const nnidValue = `${nuidValue},${new Date().getTime()}`;
+                  cookie = `nuidValue=${nuidValue};nnidValue=${nnidValue}`
+
+            } 
+
+            return cookie;
       }
 
       private get_encrypt_params(list_id: string) : object {
@@ -165,9 +249,14 @@ export class Netease extends AbsChannel {
                 });
               },
             };
-          }
+      }
 
-      public get_album_list(url:any) : any {
+      /**
+       * 获取歌单
+       * @param url 查询参数 {example: url = ?filter_id=toplist}
+       * @returns 
+       */
+      public show_playlist(url:any) : any {
             const order = 'hot';
             const offset = getParameterByName('offset', url);
             const filterId = getParameterByName('filter_id', url);
@@ -222,6 +311,25 @@ export class Netease extends AbsChannel {
                   },
             };
       }
+
+      /**
+       * 获取歌曲列表
+       * @param url 歌单id/
+       * @returns 
+       */
+      public get_playlist(url:string):any {
+            const list_id = getParameterByName('list_id', url)?.split('_')[0];
+            switch (list_id) {
+              case 'neplaylist':
+                return this.ne_get_playlist(url);
+              case 'nealbum':
+                return null; //this.ne_album(url);
+              case 'neartist':
+                return null;//this.ne_artist(url);
+              default:
+                return null;
+            }
+          }
       /**
        * 获取自定义专辑
        * @returns 自定义专辑列表
@@ -237,7 +345,7 @@ export class Netease extends AbsChannel {
        * @returns 
        */
       public async ne_album_list_detail_api(list_id: string) : Promise<CustomAlbumDetail> {
-            const encrypt_params = this.get_encrypt_params(list_id);
+            const encrypt_params = {};//this.get_encrypt_params(list_id);
             const cookie = this.cookie_build();
 
             let resp = await invoke<CustomAlbumDetail>(TauriApi.NE_CUSTOM_ALBUM_DETAIL_API, 

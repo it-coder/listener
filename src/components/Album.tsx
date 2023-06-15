@@ -18,7 +18,7 @@ const Album = (props:any, ref:any) => {
             
             const channel : AbsChannel = getChannelInstanceById(channelId)
 
-            channel.get_album_list('').success((resp:any) => {
+            channel.show_playlist(`?filter_id=${filterId}`).success((resp:any) => {
                 setAlbums(resp.result)
             })
            
@@ -29,8 +29,8 @@ const Album = (props:any, ref:any) => {
         console.log('album init')
     })
 
-    const to_playlist = () => {
-        navigate('/playlist')
+    const to_playlist = (id:string) => {
+        navigate(`/playlist/${id}`)
     }
 
 
@@ -47,7 +47,9 @@ const Album = (props:any, ref:any) => {
                                         <img
                                             err-src="https://y.gtimg.cn/mediastyle/global/img/playlist_300.png"
                                             src={album.cover_img_url}
-                                            onClick={to_playlist}
+                                            onClick={() => {
+                                                to_playlist(album.id)
+                                            }}
                                         />
                                         <div
                                             className="bottom"

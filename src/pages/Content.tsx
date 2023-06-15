@@ -15,7 +15,7 @@ const Content = () => {
                   <Routes>
                         <Route index element={<Albumlist/>} />
                         <Route path="/albumlist" element={<Albumlist/>} />
-                        <Route path="/playlist" element={ <Playlist /> } />
+                        <Route path="/playlist/:id" element={ <Playlist /> } />
                   </Routes>
                   <Outlet></Outlet>
             </div>

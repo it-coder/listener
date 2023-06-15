@@ -11,6 +11,8 @@ export abstract class AbsChannel {
      * 获取专辑列表
      * @param url 参数
      */
-    abstract get_album_list(url:string): any;
+    abstract show_playlist(url:string): any;
+
+    abstract get_playlist(url:string): any;
 }
 
