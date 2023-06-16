@@ -108,14 +108,9 @@ export class Netease extends AbsChannel {
                                     title: res_data.playlist.name,
                                     source_url: `https://music.163.com/#/playlist?id=${list_id}`,
                               };
-                              const max_allow_size = 1000;
-                              const trackIdsArray:Array<any> = this.split_array(
-                                    res_data.playlist.trackIds,
-                                    max_allow_size
-                              );
 
-                              console.log('url2222:', trackIdsArray)
-
+                              console.log('data:', res_data)
+                              const trackIdsArray = res_data.playlist.trackIds
                   
                               function ng_parse_playlist_tracks_wrapper(trackIds: Array<any>, callback:any) : any{
                                     return that.ng_parse_playlist_tracks(trackIds, callback);
@@ -132,14 +127,7 @@ export class Netease extends AbsChannel {
 
       private ng_parse_playlist_tracks(playlist_tracks:Array<any>, callback:any) {
             const target_url = 'https://music.163.com/weapi/v3/song/detail';
-            const  test = [1,2,3]
-            playlist_tracks.forEach((o:any) => {
-                  console.log(o)
-            })
-            const track_ids = (playlist_tracks as []).map((i) => {
-                  console.log(i)
-                  return i
-            });
+            const track_ids = playlist_tracks.map((i) => i.id)
             const d = {
                   c: `[${track_ids.map((id:any) => `{"id":${id}}`).join(',')}]`,
                   ids: `[${track_ids.join(',')}]`,
@@ -149,8 +137,6 @@ export class Netease extends AbsChannel {
             const config = {headers: {
                   cookies: this.cookie_build()
             }}
-
-            console.log('ng_parse_playlist_tracks:', playlist_tracks.length)
 
             client.post(target_url, new URLSearchParams(data), config).then((response) => {
                   const tracks = response.data.songs.map((track_json:any) => ({

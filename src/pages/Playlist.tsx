@@ -1,13 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { getChannelInstanceById } from "../provider/channelProvider"
 import { AbsChannel } from "../provider/absChannel"
 import { channel } from "diagnostics_channel"
 
 const Playlist = () => {
     const params:any = useParams()
-    const cover_img_url= ''
-    const playlist_title = ""
 
     const songs = [
         {
@@ -17,18 +15,20 @@ const Playlist = () => {
         }
     ]
 
+    const [playlist, setPlaylist] = useState<any>(null)
+
     useEffect(() => {
         const channelId = localStorage.getItem('channelId')
         const channel: AbsChannel = getChannelInstanceById(channelId)
 
         const list_id = params.id
 
-        console.log('params:', list_id)
-
         channel.get_playlist(`?list_id=${list_id}`).success((resp:any) => {
             console.log('get_playlist', resp)
+            
+            setPlaylist(resp)
         })
-    })
+    }, playlist)
 
     return (
         <div className="page">
@@ -38,11 +38,11 @@ const Playlist = () => {
                 <div className="detail-head">
                     <div className="detail-head-cover">
                         <img
-                            src={ cover_img_url }
+                            src={ playlist?.info.cover_img_url }
                             err-src="https://y.gtimg.cn/mediastyle/global/img/singer_300.png"/>
                     </div>
                     <div className="detail-head-title">
-                        <h2>{ playlist_title }</h2>
+                        <h2>{ playlist?.info.title }</h2>
                         <div className="playlist-button-list">
                             <div className="playlist-button playadd-button">
                                 <div
@@ -113,21 +113,22 @@ const Playlist = () => {
                             className="playlist-search-input"
                             type="text"
                             ng-model="playlistFilter.key"
-                            placeholder="{{_SEARCH_PLAYLIST}}"
+                            placeholder="搜索"
                         />
                     </div>
                     <li className="head">
                         <div className="title">
-                            <a>歌曲名{'(' + songs.length + ')'}</a>
+                            <a>歌曲名{'(' + playlist?.tracks?.length + ')'}</a>
                         </div>
                         <div className="artist"><a>歌手</a></div>
                         <div className="album"><a>专辑</a></div>
                         <div className="tools">操作</div>
                     </li>
                     {
-                        songs.map((song, index) => {
+                        playlist?.tracks?.map((song:any, index:number) => {
                             return (
                                 <li
+                                    key={song.id}
                                     ng-repeat="song in songs | filter: fieldFilter track by $index"
                                     ng-class-odd="'odd'"
                                     ng-class-even="'even'"
