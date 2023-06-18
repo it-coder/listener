@@ -6,29 +6,23 @@ import { channel } from "diagnostics_channel"
 
 const Playlist = () => {
     const params:any = useParams()
+    const list_id = params.id
 
-    const songs = [
-        {
-            title: "未送",
-            artist: "art",
-            album:"album"
-        }
-    ]
 
-    const [playlist, setPlaylist] = useState<any>(null)
+    const [playlist, setPlaylist] = useState<any>()
 
     useEffect(() => {
         const channelId = localStorage.getItem('channelId')
         const channel: AbsChannel = getChannelInstanceById(channelId)
 
-        const list_id = params.id
+        
 
         channel.get_playlist(`?list_id=${list_id}`).success((resp:any) => {
             console.log('get_playlist', resp)
             
             setPlaylist(resp)
         })
-    }, playlist)
+    }, [list_id])
 
     return (
         <div className="page">
@@ -38,11 +32,11 @@ const Playlist = () => {
                 <div className="detail-head">
                     <div className="detail-head-cover">
                         <img
-                            src={ playlist?.info.cover_img_url }
+                            src={ playlist?.info?.cover_img_url }
                             err-src="https://y.gtimg.cn/mediastyle/global/img/singer_300.png"/>
                     </div>
                     <div className="detail-head-title">
-                        <h2>{ playlist?.info.title }</h2>
+                        <h2>{ playlist?.info?.title }</h2>
                         <div className="playlist-button-list">
                             <div className="playlist-button playadd-button">
                                 <div
