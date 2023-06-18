@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { getChannelInstanceById } from "../provider/channelProvider"
 import { AbsChannel } from "../provider/absChannel"
-import { channel } from "diagnostics_channel"
+import {Howl, Howler} from 'howler';
 
 const Playlist = () => {
     const params:any = useParams()
@@ -23,6 +23,17 @@ const Playlist = () => {
             setPlaylist(resp)
         })
     }, [list_id])
+
+
+    const play = (url:string) => {
+        var sound = new Howl({
+            src: ['http://m701.music.126.net/20230618223115/bd292e37105577a3157eae544cdcdc2c/jdymusic/obj/wo3DlMOGwrbDjj7DisKw/28481805368/b208/d147/9b35/7a3634c4c4f52a85943ade18d6d8f5fa.mp3'],
+            html5: true,
+            volume: 1,
+        });
+          
+        sound.play();
+    }
 
     return (
         <div className="page">
@@ -138,7 +149,7 @@ const Playlist = () => {
                                 >
                                     <div className="title">
                                         {/* <!-- <a className="disabled" ng-if="song.disabled" ng-click="copyrightNotice()">{{ song.title }}</a> --> */}
-                                        <a add-and-play="song">{ song.title }</a>
+                                        <a add-and-play="song" onClick={() => {play(song.source_url)}}>{ song.title }</a>
                                     </div>
                                     <div className="artist">
                                         <a ng-click="showPlaylist(song.artist_id)">{ song.artist }</a>
