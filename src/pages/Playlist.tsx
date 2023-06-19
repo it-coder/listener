@@ -3,20 +3,19 @@ import { useEffect, useState } from "react"
 import { getChannelInstanceById } from "../provider/channelProvider"
 import { AbsChannel } from "../provider/absChannel"
 import {Howl, Howler} from 'howler';
+import { error } from "console";
 
 const Playlist = () => {
     const params:any = useParams()
     const list_id = params.id
 
-
     const [playlist, setPlaylist] = useState<any>()
 
+    const channelId = localStorage.getItem('channelId')
+    const channel: AbsChannel = getChannelInstanceById(channelId)
+
     useEffect(() => {
-        const channelId = localStorage.getItem('channelId')
-        const channel: AbsChannel = getChannelInstanceById(channelId)
-
         
-
         channel.get_playlist(`?list_id=${list_id}`).success((resp:any) => {
             console.log('get_playlist', resp)
             
@@ -33,6 +32,14 @@ const Playlist = () => {
         });
           
         sound.play();
+    }
+
+    const add_and_play = (track:any) => {
+        channel.bootstrap_track(track, (resp:any) => {
+            console.log(resp)
+        } , (error) => {
+            console.log(error)
+        })
     }
 
     return (
@@ -149,7 +156,7 @@ const Playlist = () => {
                                 >
                                     <div className="title">
                                         {/* <!-- <a className="disabled" ng-if="song.disabled" ng-click="copyrightNotice()">{{ song.title }}</a> --> */}
-                                        <a add-and-play="song" onClick={() => {play(song.source_url)}}>{ song.title }</a>
+                                        <a add-and-play="song" onClick={() => {add_and_play(song)}}>{ song.title }</a>
                                     </div>
                                     <div className="artist">
                                         <a ng-click="showPlaylist(song.artist_id)">{ song.artist }</a>

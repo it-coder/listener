@@ -5,6 +5,7 @@ import { AbsChannel } from "./absChannel";
 import client from "../server";
 import { getParameterByName } from "../util/Utils";
 import { ResponseType } from "axios";
+import { cli } from "@tauri-apps/api";
 
 export class Netease extends AbsChannel {
 
@@ -315,7 +316,40 @@ export class Netease extends AbsChannel {
               default:
                 return null;
             }
-          }
+      }
+
+      public bootstrap_track(track:any, successFn: (resp:any) => void, failFn:(resp:any) => void):void {
+            const sound:any = {};
+            const target_url = `https://interface3.music.163.com/eapi/song/enhance/player/url`;
+            let song_id = track.id;
+            const eapiUrl = '/api/song/enhance/player/url';
+
+            song_id = song_id.slice('netrack_'.length);
+
+            const d = {
+                  ids: `[${song_id}]`,
+                  br: 999000,
+            };
+            const data:any = this.eapi(eapiUrl, d);
+            const expire =
+                  (new Date().getTime() + 1e3 * 60 * 60 * 24 * 365 * 100) / 1000;
+            
+            client.post(target_url, new URLSearchParams(data)).then((response) => {
+                  const { data: res_data } = response;
+                  const { url, br } = res_data.data[0];
+                  if (url != null) {
+                        sound.url = url;
+                        const bitrate = `${(br / 1000).toFixed(0)}kbps`;
+                        sound.bitrate = bitrate;
+                        sound.platform = 'netease';
+            
+                        successFn(sound);
+                  } else {
+                        failFn(sound);
+                  }
+            });
+      }
+
       /**
        * 获取自定义专辑
        * @returns 自定义专辑列表

@@ -19,7 +19,7 @@ const Platform = (props:IProps) => {
     useEffect(() => {
         console.log('Platform')
         onTogglePlatform(channelId)
-    })
+    }, [channelId])
     const onTogglePlatform = (id: string) => {
         localStorage.setItem('channelId', id)
         setChannelId(id)
